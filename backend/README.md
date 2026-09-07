@@ -1,7 +1,7 @@
 # Doctor Tracker — Backend
 
 ![Node](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
 ![Jest](https://img.shields.io/badge/Tested_with-Jest-C21325?logo=jest&logoColor=white)
@@ -52,7 +52,7 @@ flowchart LR
 
 ## Tech Stack
 
-Node.js · Express 5 · TypeScript · Mongoose (MongoDB) · Zod (validation) · JWT + bcryptjs (auth) · `express-rate-limit` + `helmet` (hardening) · Jest + Supertest + `mongodb-memory-server` (tests)
+Node.js · Express 4 · TypeScript · Mongoose (MongoDB) · Zod (validation) · JWT + bcryptjs (auth) · `express-rate-limit` + `helmet` (hardening) · Jest + Supertest + `mongodb-memory-server` (tests)
 
 ## Setup Guide
 

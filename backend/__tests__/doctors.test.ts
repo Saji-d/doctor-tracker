@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../src/app";
+import { Doctor } from "../src/models/Doctor";
 import { connectTestDB, disconnectTestDB } from "./db";
 import { authedAgent, createDoctor, clearData } from "./helpers";
 
@@ -79,6 +80,32 @@ describe("Doctors API", () => {
     const bySearch = await agent.get("/api/doctors?search=Derma");
     expect(bySearch.body.data).toHaveLength(1);
     expect(bySearch.body.data[0].name).toBe("Dr. Derma");
+  });
+
+  it("filters by createdAt date range", async () => {
+    const recent = await createDoctor(agent, { name: "Dr. Recent" });
+    // Mongoose's `timestamps` option only honors a caller-supplied `createdAt`
+    // at document-creation time — it's silently stripped from any later
+    // `updateOne` (by design, to stop accidental overwrites), so backdating
+    // for a test has to happen via a direct `.create()`, not create-then-update.
+    const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+    const old = await Doctor.create({
+      name: "Dr. Old",
+      specialization: "Cardiology",
+      hospital: "Test Hospital",
+      phone: "+15551234567",
+      email: "dr.old@test.dev",
+      createdAt: oldDate,
+      updatedAt: oldDate,
+    });
+
+    const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const withinLastWeek = await agent.get(`/api/doctors?dateFrom=${from}`);
+    expect(withinLastWeek.body.data.map((d: { name: string }) => d.name)).toEqual([recent.name]);
+
+    const to = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const beforeLastMonth = await agent.get(`/api/doctors?dateTo=${to}`);
+    expect(beforeLastMonth.body.data.map((d: { name: string }) => d.name)).toEqual([old.name]);
   });
 
   it("gets a doctor by id; 404s for a missing id; 400s for a malformed id", async () => {

@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../src/app";
+import { Patient } from "../src/models/Patient";
 import { connectTestDB, disconnectTestDB } from "./db";
 import { authedAgent, createDoctor, clearData } from "./helpers";
 
@@ -38,6 +39,62 @@ describe("Patients API", () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
     expect(res.body.data[0].condition).toBe("Migraine");
+  });
+
+  it("lists patients globally, filterable by search", async () => {
+    await createDoctorAndPatient();
+
+    const found = await agent.get("/api/patients?search=Patient Z");
+    expect(found.body.data).toHaveLength(1);
+    expect(found.body.data[0].name).toBe("Patient Z");
+
+    const notFound = await agent.get("/api/patients?search=Nobody Here");
+    expect(notFound.body.data).toHaveLength(0);
+  });
+
+  it("lists patients globally, filterable by doctorId", async () => {
+    const { doctorId } = await createDoctorAndPatient();
+    const otherDoctor = await createDoctor(agent, { name: "Dr. Other", specialization: "Neurology" });
+    await agent.post(`/api/doctors/${otherDoctor._id}/patients`).send({ name: "Other Patient", age: 25, condition: "Asthma" });
+
+    const res = await agent.get(`/api/patients?doctorId=${doctorId}`);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].name).toBe("Patient Z");
+  });
+
+  it("paginates the global patient list", async () => {
+    const doctor = await createDoctor(agent);
+    for (let i = 0; i < 3; i++) {
+      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 30, condition: "Asthma" });
+    }
+
+    const res = await agent.get("/api/patients?page=1&limit=2");
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.pagination.total).toBe(3);
+    expect(res.body.pagination.totalPages).toBe(2);
+  });
+
+  it("filters the global patient list by createdAt date range", async () => {
+    const { doctorId, patient: recent } = await createDoctorAndPatient();
+    // See the equivalent doctors.test.ts case for why this backdates via a
+    // direct `.create()` rather than `.updateOne()` after the fact.
+    const oldDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+    const old = await Patient.create({
+      name: "Old Patient",
+      age: 60,
+      condition: "Arthritis",
+      doctorId,
+      createdAt: oldDate,
+      updatedAt: oldDate,
+    });
+
+    const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const withinLastWeek = await agent.get(`/api/patients?dateFrom=${from}`);
+    expect(withinLastWeek.body.data.map((p: { name: string }) => p.name)).toEqual([recent.name]);
+
+    const to = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const beforeLastMonth = await agent.get(`/api/patients?dateTo=${to}`);
+    expect(beforeLastMonth.body.data.map((p: { name: string }) => p.name)).toEqual([old.name]);
   });
 
   it("updates a patient (partial update leaves other fields untouched)", async () => {

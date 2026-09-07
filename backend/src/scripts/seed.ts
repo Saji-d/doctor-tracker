@@ -60,9 +60,14 @@ function randomDateWithinDays(daysAgo: number): Date {
   return new Date(past + Math.random() * (now - past));
 }
 
+// Bangladeshi mobile numbers: 01 + operator digit + 8-digit subscriber number
+// (e.g. 01712345678), written in +880 international format.
+const BD_OPERATOR_PREFIXES = ["13", "14", "15", "16", "17", "18", "19"];
+
 function randomPhone(): string {
-  const rest = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10)).join("");
-  return `+1${rest}`;
+  const prefix = pick(BD_OPERATOR_PREFIXES);
+  const rest = Array.from({ length: 8 }, () => Math.floor(Math.random() * 10)).join("");
+  return `+880${prefix}${rest}`;
 }
 
 async function seed() {
