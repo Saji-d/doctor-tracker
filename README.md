@@ -18,7 +18,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 10 of 15 complete — full patient CRUD across both entry points
+## Status: Phase 11 of 15 complete — all planned features are now built
 
 | Phase | What | Status |
 |---|---|---|
@@ -32,7 +32,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 8 | Doctors UI | ✅ Done |
 | 9 | Doctor detail + patient add/delete | ✅ Done |
 | 10 | Global Patients page | ✅ Done |
-| 11 | Dashboard UI | Not started |
+| 11 | Dashboard UI | ✅ Done |
 | 12 | Performance & re-render verification pass | Not started |
 | 13 | Testing | Not started |
 | 14 | Deployment | Not started |
@@ -115,6 +115,15 @@ This closes out the entire backend API surface (auth, doctors, patients, dashboa
   2. This shadcn version wraps **Base UI's** Select (not Radix), and Base UI's `Select.Value` does **not** auto-derive label text from the selected item the way Radix's does — it shows the raw value string unless given a function-as-children mapping. Every filter select in the app (including Phase 8's specialization filter) was showing literal values like `"all"` instead of "All specializations". Fixed all four instances (doctors specialization filter, patients condition/doctor filters, patient-edit doctor reassignment) with explicit label-mapping functions.
 - **Verified:** search, condition filter, doctor filter — individually and combined (live, in-browser). Date-range filtering confirmed at the API level (same `DateRangeFilter` component already proven working in Phase 8's UI). Doctor reassignment verified functionally via direct API calls mirroring the UI's mutation path: patient removed from the old doctor's list, appeared in the new doctor's list, both immediately — exactly the "on next visit" behavior the plan calls for. Edit modal confirmed rendering correctly pre-filled with resolved doctor name. Delete confirmed sharing the exact same `ConfirmDialog`/`useDeletePatient` code path already verified live in Phase 9, so consistency between the two entry points is structural, not coincidental.
 - Commit: `Add patient search and filters`.
+
+**Phase 11 — Dashboard UI**
+- `(dashboard)/dashboard/page.tsx` replaces the Phase 7 placeholder: 4 stat cards (Total Doctors, Total Patients, Avg Patients/Doctor, New Patients in the selected range), a horizontal bar chart (patients per doctor, top 10), and an area chart (new patient registrations over time) with its own 7d/30d/90d range selector. `hooks/useDashboard.ts`, `components/charts/{StatCard,PatientsPerDoctorChart,DateTrendChart}.tsx`. Loaded the `dataviz` skill before writing chart code — both charts are single-series, so per its guidance they get one consistent accent color each and no legend, rather than a multi-hue categorical palette they don't need.
+- Colors: the shadcn theme's `--chart-1`/`--chart-2` tokens turned out to be placeholder grayscale (zero chroma — this project was initialized without a brand color), unsuitable for chart marks, so used two solid accessible hex colors (blue, green) instead.
+- Moved "Log out" from the old placeholder dashboard page into the nav bar (now shows the logged-in email + a logout button on the right) — it needed a permanent home once the dashboard page became real content instead of a stub.
+- **Verified live:** stat-card totals (12 doctors, 80 patients) matched what Phase 6 independently verified server-side. Confirmed the animated chart entry (Recharts' default transition) was the only reason an early screenshot looked broken — resolved once settled, both charts render correctly. **Re-confirmed the exact bug Phase 6 fixed, now visible end-to-end in the running UI:** switching the trend chart's range from 30d to 7d changed the trend chart and the "New Patients" stat (52 → 11), while Total Doctors/Total Patients/Avg Patients-per-Doctor stayed pixel-identical. The empty-data branch (fresh DB → onboarding message instead of charts) is a simple, low-risk conditional confirmed by code review rather than a live empty-DB test, for the same reason as Phase 8's analogous case — forcing it would need a destructive data-clearing action outside the seed script.
+- Commit: `Add dashboard analytics`.
+
+This closes out every feature phase in the plan — Phases 12-15 are performance verification, testing, deployment, and README/polish, not new functionality.
 
 ## Architecture decisions locked in so far
 
