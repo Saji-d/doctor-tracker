@@ -28,7 +28,7 @@ export function NavBar() {
 
   return (
     <nav className="border-b bg-background">
-      <div className="flex items-center gap-1 px-8 h-14">
+      <div className="flex flex-wrap items-center gap-1 px-4 sm:px-8 py-2 min-h-14">
         <span className="font-semibold mr-4">Doctor Tracker</span>
         {LINKS.map((link) => {
           const isActive = pathname.startsWith(link.href);

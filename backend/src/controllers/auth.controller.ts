@@ -6,15 +6,18 @@ import { COOKIE_NAME, TOKEN_TTL, COOKIE_MAX_AGE_MS } from "../config/constants";
 import { User } from "../models/User";
 import { ApiError } from "../utils/ApiError";
 
-function cookieOptions(): CookieOptions {
+function baseCookieOptions(): CookieOptions {
   const isProd = env.NODE_ENV === "production";
   return {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
-    maxAge: COOKIE_MAX_AGE_MS,
     path: "/",
   };
+}
+
+function cookieOptions(): CookieOptions {
+  return { ...baseCookieOptions(), maxAge: COOKIE_MAX_AGE_MS };
 }
 
 export async function login(req: Request, res: Response, next: NextFunction) {
@@ -42,7 +45,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function logout(_req: Request, res: Response, next: NextFunction) {
   try {
-    res.clearCookie(COOKIE_NAME, cookieOptions());
+    res.clearCookie(COOKIE_NAME, baseCookieOptions());
     res.status(204).send();
   } catch (err) {
     next(err);
