@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { apiClient } from "@/lib/api-client";
+import { Button } from "@/components/ui/button";
 
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -12,6 +16,15 @@ const LINKS = [
 
 export function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  async function handleLogout() {
+    await apiClient.post("/auth/logout");
+    queryClient.setQueryData(["auth", "me"], undefined);
+    router.push("/login");
+  }
 
   return (
     <nav className="border-b bg-background">
@@ -32,6 +45,12 @@ export function NavBar() {
             </Link>
           );
         })}
+        <div className="ml-auto flex items-center gap-3">
+          {user?.email && <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>}
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Log out
+          </Button>
+        </div>
       </div>
     </nav>
   );
