@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
+import doctorsRoutes from "./routes/doctors.routes";
 import { notFoundHandler, errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
@@ -18,6 +19,7 @@ app.get("/health", (_req: Request, res: Response) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/doctors", doctorsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorMiddleware);
