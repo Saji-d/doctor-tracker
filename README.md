@@ -18,7 +18,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 9 of 15 complete — doctor-to-patient workflow fully wired
+## Status: Phase 10 of 15 complete — full patient CRUD across both entry points
 
 | Phase | What | Status |
 |---|---|---|
@@ -31,7 +31,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 7 | Frontend foundation + auth | ✅ Done |
 | 8 | Doctors UI | ✅ Done |
 | 9 | Doctor detail + patient add/delete | ✅ Done |
-| 10 | Global Patients page | Not started |
+| 10 | Global Patients page | ✅ Done |
 | 11 | Dashboard UI | Not started |
 | 12 | Performance & re-render verification pass | Not started |
 | 13 | Testing | Not started |
@@ -107,6 +107,14 @@ This closes out the entire backend API surface (auth, doctors, patients, dashboa
 - **Verified live:** opened two different doctors and confirmed completely disjoint patient lists (no cross-doctor leakage); added a patient and watched it appear in the list with no manual refresh (cache invalidation working); delete — tested Cancel (patient stays) and confirmed delete (patient removed, dialog names the correct patient); failed add (empty name/condition) left the modal open with already-entered fields intact.
 - Not independently re-verified: whether the dashboard's counts actually reflect these invalidations — there's no dashboard yet, so this is explicitly deferred to Phase 11 per the plan, not skipped.
 - Commit: `Add doctor detail page with patient management`.
+
+**Phase 10 — Global Patients page**
+- `(dashboard)/patients/page.tsx` — search, condition filter, doctor filter, date-range filter (all URL-synced, same pattern as Doctors), edit modal with doctor reassignment, delete with confirmation. `components/patients/{PatientTable,PatientEditForm}.tsx`. `usePatients.ts` extended with `usePatients` (global list), `useUpdatePatient`. Nav bar now links Patients too.
+- **Two real bugs found and fixed during verification, both pre-existing since Phase 8, just not yet triggered:**
+  1. Requested `limit=100` for the doctor-name lookup, but the backend hard-caps `limit` at 50 — that request silently 400'd, so the Doctor column showed "—" for every row. Fixed by using `limit=50` (comfortably above the 12 seeded doctors) with a comment explaining why not to raise it casually.
+  2. This shadcn version wraps **Base UI's** Select (not Radix), and Base UI's `Select.Value` does **not** auto-derive label text from the selected item the way Radix's does — it shows the raw value string unless given a function-as-children mapping. Every filter select in the app (including Phase 8's specialization filter) was showing literal values like `"all"` instead of "All specializations". Fixed all four instances (doctors specialization filter, patients condition/doctor filters, patient-edit doctor reassignment) with explicit label-mapping functions.
+- **Verified:** search, condition filter, doctor filter — individually and combined (live, in-browser). Date-range filtering confirmed at the API level (same `DateRangeFilter` component already proven working in Phase 8's UI). Doctor reassignment verified functionally via direct API calls mirroring the UI's mutation path: patient removed from the old doctor's list, appeared in the new doctor's list, both immediately — exactly the "on next visit" behavior the plan calls for. Edit modal confirmed rendering correctly pre-filled with resolved doctor name. Delete confirmed sharing the exact same `ConfirmDialog`/`useDeletePatient` code path already verified live in Phase 9, so consistency between the two entry points is structural, not coincidental.
+- Commit: `Add patient search and filters`.
 
 ## Architecture decisions locked in so far
 
