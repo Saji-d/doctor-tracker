@@ -18,7 +18,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 7 of 15 complete — auth now proven end-to-end through the real frontend
+## Status: Phase 8 of 15 complete — first full CRUD page live, and a real network-error bug caught and fixed
 
 | Phase | What | Status |
 |---|---|---|
@@ -29,7 +29,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 5 | Patients API | ✅ Done |
 | 6 | Dashboard API | ✅ Done |
 | 7 | Frontend foundation + auth | ✅ Done |
-| 8 | Doctors UI | Not started |
+| 8 | Doctors UI | ✅ Done |
 | 9 | Doctor detail + patient add/delete | Not started |
 | 10 | Global Patients page | Not started |
 | 11 | Dashboard UI | Not started |
@@ -91,6 +91,14 @@ This closes out the entire backend API surface (auth, doctors, patients, dashboa
 - **Verified through an actual browser** (not just curl) against both servers running locally: logged-out visit to `/dashboard` → redirected to `/login`; wrong credentials → inline error, stayed on `/login`; correct credentials → landed on `/dashboard` showing the email; hard refresh on `/dashboard` → session survived (cookie round-tripped cross-port); logout → redirected, and a subsequent refresh of `/dashboard` redirected again (server-side session actually cleared, not just client state). Also confirmed `document.cookie` can't read the auth cookie at all (blocked), and `/auth/me` succeeds as a genuine cross-origin request to `localhost:4000` — both consistent with the cookie being scoped to the backend, not the frontend. No console errors during the whole flow.
 - **Git restructure this phase:** moved from two independent repos to one shared repo (`backend/` + `frontend/` subfolders, mirrored on GitHub) per your explicit direction — see the workspace-layout note above for how backend's history was preserved through that move, and the tradeoff on the assignment's two-repo-link ask.
 - Commit: `Set up frontend project structure and auth flow`.
+
+**Phase 8 — Doctors UI**
+- Shared components built against their first real use case (not speculatively): `components/data-table/{DataTable,Pagination}.tsx` (generic, typed by column config — loading skeleton via shadcn `Skeleton`, error state with Retry, distinct empty-state slot), `components/filters/{SearchInput,DateRangeFilter,FilterBar}.tsx` (`SearchInput` debounced 300ms), `components/ui/modal.tsx` (shadcn `Dialog` wrapper), `hooks/useDoctors.ts` (TanStack Query, `keepPreviousData` so the table doesn't flash empty between pages/filters).
+- `components/doctors/{DoctorForm,DoctorTable}.tsx`, `(dashboard)/doctors/page.tsx` — filters/page are mirrored into the URL via `useSearchParams`/`router.replace`, wrapped in a `<Suspense>` boundary per Next.js 16's guidance for that hook.
+- Added a minimal `NavBar` (Dashboard/Doctors links, Patients to follow in Phase 10) to `(dashboard)/layout.tsx` — needed the moment a second real page existed.
+- **Verified live** (backend + frontend both running, driven through an actual browser): search, specialization filter, date-range filter, and pagination all work individually and combined; URL reflects filter/page state and survives a real navigation/refresh; add-doctor client-side validation messages match the backend's Zod messages exactly (checked field-by-field); the filtered-empty state ("No doctors found — try adjusting filters") renders correctly live. The true "no doctors at all" onboarding-empty branch was **not** independently re-verified against a live empty database — doing so would have required deleting all seeded doctors, which the session's safety guard correctly blocked as a destructive action; it's the same ternary as the verified branch, just the opposite condition, so confidence there rests on code review, not a live check — flagged here rather than glossed over.
+- **Real bug found and fixed during verification:** killing the backend didn't show a graceful error — it redirected straight to `/login`, because `AuthProvider` treated *any* failed `/auth/me` call (including "server unreachable") as "unauthenticated." Added a distinct `network-error` status (keyed off the API client's status-0 error) so the dashboard shell now shows "Could not reach server" with a Retry button instead of a misleading logged-out redirect. Re-verified live: killed the backend, confirmed the new error state, restarted the backend, confirmed Retry recovers the full page.
+- Commit: `Build doctor listing page`.
 
 ## Architecture decisions locked in so far
 
