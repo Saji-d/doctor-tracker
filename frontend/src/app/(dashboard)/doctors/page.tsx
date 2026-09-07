@@ -72,7 +72,9 @@ function DoctorsPageContent() {
           onValueChange={(v) => updateParams({ specialization: v === "all" ? null : v })}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Specialization" />
+            <SelectValue placeholder="Specialization">
+              {(v: string) => (v === "all" ? "All specializations" : v)}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All specializations</SelectItem>

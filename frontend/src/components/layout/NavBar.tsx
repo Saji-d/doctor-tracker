@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-// Patients isn't linked yet — that page doesn't exist until Phase 10.
 const LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/doctors", label: "Doctors" },
+  { href: "/patients", label: "Patients" },
 ];
 
 export function NavBar() {

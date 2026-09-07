@@ -50,6 +50,59 @@ export function useCreatePatientForDoctor(doctorId: string) {
   });
 }
 
+export interface PatientsFilters {
+  page: number;
+  limit: number;
+  search?: string;
+  condition?: string;
+  doctorId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+function buildPatientsQueryString(filters: PatientsFilters): string {
+  const params = new URLSearchParams();
+  params.set("page", String(filters.page));
+  params.set("limit", String(filters.limit));
+  if (filters.search) params.set("search", filters.search);
+  if (filters.condition) params.set("condition", filters.condition);
+  if (filters.doctorId) params.set("doctorId", filters.doctorId);
+  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) params.set("dateTo", filters.dateTo);
+  return params.toString();
+}
+
+// Global, cross-doctor list — used by the dedicated Patients page. Shares the
+// "patients" query-key prefix with usePatientsByDoctor so a single
+// invalidateQueries(["patients"]) after any mutation covers both views.
+export function usePatients(filters: PatientsFilters) {
+  return useQuery({
+    queryKey: ["patients", "all", filters],
+    queryFn: () => apiClient.get<PatientsResponse>(`/patients?${buildPatientsQueryString(filters)}`),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export interface UpdatePatientInput {
+  name?: string;
+  age?: number;
+  condition?: string;
+  phone?: string;
+  doctorId?: string;
+}
+
+export function useUpdatePatient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdatePatientInput }) =>
+      apiClient.patch<Patient>(`/patients/${id}`, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
 export function useDeletePatient() {
   const queryClient = useQueryClient();
   return useMutation({
