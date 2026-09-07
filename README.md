@@ -18,9 +18,9 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 14 of 15 complete — both apps live and talking to each other
+## Status: Phase 15 of 15 complete — project finished
 
-**Live URLs:** frontend https://doctor-tracker-seven.vercel.app · backend https://doctor-tracker-backend-jn3d.onrender.com
+**Live URLs:** frontend https://doctor-tracker-web.vercel.app · backend https://doctor-tracker-backend-jn3d.onrender.com
 
 | Phase | What | Status |
 |---|---|---|
@@ -38,7 +38,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 12 | Performance & re-render verification pass | ✅ Done |
 | 13 | Testing | ✅ Done |
 | 14 | Deployment | ✅ Done |
-| 15 | README / final polish | Not started |
+| 15 | README / final polish | ✅ Done |
 
 ## What's been built so far
 
@@ -144,13 +144,21 @@ No new features — this phase only produced verification evidence, so there's n
 
 **Phase 14 — Deployment**
 - Backend deployed to Render (free Web Service tier), frontend to Vercel (Hobby tier), both connected via GitHub for auto-deploy on push to `main`. MongoDB Atlas was already set up in an earlier phase.
-- **Naming:** you asked to confirm both domains before they were picked. The backend's exact name `doctor-tracker-backend` was already taken globally on Render, so it auto-suffixed to `doctor-tracker-backend-jn3d.onrender.com`; Render's rename UI only changes the display name, not the subdomain, so that suffix is permanent short of deleting and recreating the service (not attempted, since a fresh attempt isn't guaranteed a cleaner name either). Same story on Vercel — `doctor-tracker` was taken, landing on `doctor-tracker-seven.vercel.app`.
+- **Naming:** you asked to confirm both domains before they were picked. The backend's exact name `doctor-tracker-backend` was already taken globally on Render, so it auto-suffixed to `doctor-tracker-backend-jn3d.onrender.com`; Render's rename UI only changes the display name, not the subdomain, so that suffix is permanent short of deleting and recreating the service (not attempted, since a fresh attempt isn't guaranteed a cleaner name either). Same story on Vercel — `doctor-tracker` was taken, landing on `doctor-tracker-seven.vercel.app` at first. In Phase 15 you asked for a cleaner one, so `doctor-tracker-web.vercel.app` was added as a second production domain alias on the same Vercel project (both still resolve; `FRONTEND_URL`/CORS on the backend was updated to the new one).
 - **Two real deployment bugs found and fixed, not just retried until green:**
   1. **Build failure #1** — Render's `npm install` (unlike `npm ci`) doesn't strictly follow `package-lock.json`, so it picked a newer TypeScript minor version than what we'd tested against, one that hard-removed the `moduleResolution: "node"` config option our `tsconfig.json` still had. Fixed by dropping that line — the default resolution for a `commonjs` module already does the right thing, so it's a no-op locally and a real fix on Render. Also switched the build command to `npm ci` for reproducible installs matching the lockfile.
   2. **Build failure #2** — with `npm ci` in place, the build broke a different way: every file importing `express`, `bcryptjs`, or `jsonwebtoken` failed with "could not find a declaration file," and `console`/`process` were reported as undefined globals. Cause: `NODE_ENV=production` was already set as an app env var (correctly, for the app's own runtime logic), but npm on Render also reads that same variable to decide whether to skip `devDependencies` — which is where `typescript` and every `@types/*` package live. Fixed by changing the build command to `npm ci --include=dev && npm run build`, forcing dev dependencies in for the build step regardless of the runtime `NODE_ENV`.
 - **CORS re-verified against the real deployed origin**, not assumed: `curl -X OPTIONS` with `Origin: https://doctor-tracker-seven.vercel.app` against the live backend confirmed `access-control-allow-origin` echoes that exact origin and `access-control-allow-credentials: true` — the pairing that makes the cross-domain cookie actually get sent.
 - **Full live auth flow walked through in a real browser against the production URLs** (the single highest-risk item per the plan, since localhost's relaxed cookie rules can mask a production-only failure): login with the seeded admin → dashboard renders real data (12 doctors, 80 patients, both charts) → hard refresh keeps the session → logout → refreshing `/dashboard` while logged out redirects back to `/login`. All passed on the first fully-configured attempt.
 - Commits: `Fix backend build failure on Render` (the `tsconfig.json` fix — the second build-command fix was applied directly in Render's dashboard, since it's deploy configuration rather than app code) plus this progress-log update.
+
+**Phase 15 — README / final polish**
+- Wrote proper `backend/README.md` and `frontend/README.md`, replacing the empty/boilerplate files, matching the assignment PDF's required README template exactly: one-paragraph elevator pitch, a step-by-step setup guide with the real `.env.example` contents inlined, a Mermaid system-architecture diagram, two deep-dive technical decisions per README, visual evidence, and a project-links section with the live URLs and demo credentials (the PDF explicitly asks for credentials in the submission, so the seeded admin login is included).
+- **Technical decisions**, one pair per README rather than repeating the same two everywhere: backend's README goes deep on *why it's the sole auth boundary* and *why the dashboard is four parallel queries instead of one `$facet`*; frontend's README goes deep on *why it never reads the auth cookie itself* and *why TanStack Query instead of Redux/Context*. All four were true decisions made and verified earlier in the project (Phases 3, 6, 7, 8) — this phase documented them, it didn't invent new rationale after the fact.
+- **Visual evidence:** captured 5 real desktop screenshots against the live app (login, dashboard, doctors list, doctor detail, patients) and committed them to `docs/screenshots/`. Mobile screenshots were attempted but the sandboxed browser tool used throughout this project genuinely cannot resize its own rendered viewport — confirmed again via a direct `window.innerWidth` check that stayed fixed regardless of the resize call — so rather than fake a mobile screenshot, the frontend README says so plainly and points at the specific responsive-design evidence that *does* exist: the Phase 13 code review and the real overflow bug it caught and fixed in `NavBar.tsx`.
+- **Frontend domain changed** at your request: added `doctor-tracker-web.vercel.app` as a second Production domain on the same Vercel project (Vercel allows multiple domains per project; both it and the original `-seven` one resolve to the same deployment), then updated the backend's `FRONTEND_URL` env var and redeployed — re-verified live with a fresh `curl -X OPTIONS` CORS preflight and a full logged-in browser session against the new domain before treating it as done.
+- This file (the root progress log) and both per-app READMEs together now satisfy every item in the plan's Definition of Done.
+- Commit: `Add project READMEs, screenshots, and update frontend domain` plus this progress-log update.
 
 ## Architecture decisions locked in so far
 
