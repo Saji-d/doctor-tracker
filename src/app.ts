@@ -6,6 +6,7 @@ import { env } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import doctorsRoutes from "./routes/doctors.routes";
 import patientsRoutes from "./routes/patients.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 import { notFoundHandler, errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
@@ -22,6 +23,7 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorsRoutes);
 app.use("/api/patients", patientsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(notFoundHandler);
 app.use(errorMiddleware);
