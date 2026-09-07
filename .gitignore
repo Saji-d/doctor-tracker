@@ -1,0 +1,9 @@
+# Local planning/assignment materials — not part of the submitted deliverable.
+# backend/ and frontend/ each have their own .gitignore for their own build
+# artifacts, dependencies, and secrets. Patterns here are root-anchored so
+# they don't accidentally shadow same-named files inside those subfolders
+# (e.g. frontend/README.md, which IS meant to be tracked).
+/*.pdf
+/Screenshot*.png
+/IMPLEMENTATION_PLAN.md
+/README.md
