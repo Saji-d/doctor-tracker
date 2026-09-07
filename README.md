@@ -18,7 +18,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 8 of 15 complete — first full CRUD page live, and a real network-error bug caught and fixed
+## Status: Phase 9 of 15 complete — doctor-to-patient workflow fully wired
 
 | Phase | What | Status |
 |---|---|---|
@@ -30,7 +30,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 6 | Dashboard API | ✅ Done |
 | 7 | Frontend foundation + auth | ✅ Done |
 | 8 | Doctors UI | ✅ Done |
-| 9 | Doctor detail + patient add/delete | Not started |
+| 9 | Doctor detail + patient add/delete | ✅ Done |
 | 10 | Global Patients page | Not started |
 | 11 | Dashboard UI | Not started |
 | 12 | Performance & re-render verification pass | Not started |
@@ -99,6 +99,14 @@ This closes out the entire backend API surface (auth, doctors, patients, dashboa
 - **Verified live** (backend + frontend both running, driven through an actual browser): search, specialization filter, date-range filter, and pagination all work individually and combined; URL reflects filter/page state and survives a real navigation/refresh; add-doctor client-side validation messages match the backend's Zod messages exactly (checked field-by-field); the filtered-empty state ("No doctors found — try adjusting filters") renders correctly live. The true "no doctors at all" onboarding-empty branch was **not** independently re-verified against a live empty database — doing so would have required deleting all seeded doctors, which the session's safety guard correctly blocked as a destructive action; it's the same ternary as the verified branch, just the opposite condition, so confidence there rests on code review, not a live check — flagged here rather than glossed over.
 - **Real bug found and fixed during verification:** killing the backend didn't show a graceful error — it redirected straight to `/login`, because `AuthProvider` treated *any* failed `/auth/me` call (including "server unreachable") as "unauthenticated." Added a distinct `network-error` status (keyed off the API client's status-0 error) so the dashboard shell now shows "Could not reach server" with a Retry button instead of a misleading logged-out redirect. Re-verified live: killed the backend, confirmed the new error state, restarted the backend, confirmed Retry recovers the full page.
 - Commit: `Build doctor listing page`.
+
+**Phase 9 — Doctor detail + patient add/delete**
+- `(dashboard)/doctors/[id]/page.tsx` — doctor header card, scoped/paginated patient table, Add Patient modal, per-row Delete with confirmation.
+- `hooks/usePatients.ts` (`usePatientsByDoctor`, `useCreatePatientForDoctor`, `useDeletePatient`), `components/patients/PatientForm.tsx` (first use — deliberately create-only; edit + doctor reassignment is different enough to get its own form in Phase 10 rather than an unused "mode" prop now), `components/ui/confirm-dialog.tsx` (shadcn `AlertDialog` wrapper, reused for every future delete). `useDoctor(id)` added to `useDoctors.ts` for the header. `DoctorTable` now links doctor names to this page (deferred from Phase 8 on purpose, since the page didn't exist yet).
+- Delete/create mutations already invalidate a `["dashboard"]` query key that doesn't exist until Phase 11 — a harmless no-op today, and means dashboard counts will already be correctly wired to refresh once that page lands.
+- **Verified live:** opened two different doctors and confirmed completely disjoint patient lists (no cross-doctor leakage); added a patient and watched it appear in the list with no manual refresh (cache invalidation working); delete — tested Cancel (patient stays) and confirmed delete (patient removed, dialog names the correct patient); failed add (empty name/condition) left the modal open with already-entered fields intact.
+- Not independently re-verified: whether the dashboard's counts actually reflect these invalidations — there's no dashboard yet, so this is explicitly deferred to Phase 11 per the plan, not skipped.
+- Commit: `Add doctor detail page with patient management`.
 
 ## Architecture decisions locked in so far
 
