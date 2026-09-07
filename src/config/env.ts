@@ -6,6 +6,9 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   ADMIN_EMAIL: z.string().email("ADMIN_EMAIL must be a valid email"),
   ADMIN_PASSWORD: z.string().min(8, "ADMIN_PASSWORD must be at least 8 characters"),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+  FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
 const parsed = envSchema.safeParse(process.env);
