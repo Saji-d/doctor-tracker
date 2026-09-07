@@ -3,7 +3,8 @@
 import { ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { NavBar } from "@/components/layout/NavBar";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -43,9 +44,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen">
-      <NavBar />
-      {children}
+    <div className="min-h-screen lg:flex">
+      <Sidebar />
+      <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
+        <Header />
+        <main className="flex-1">{children}</main>
+      </div>
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function DateTrendChart({ data }: DateTrendChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={240}>
       <AreaChart data={data} margin={{ left: 0, right: 16, top: 8 }}>
         <defs>
           <linearGradient id="dateTrendFill" x1="0" y1="0" x2="0" y2="1">

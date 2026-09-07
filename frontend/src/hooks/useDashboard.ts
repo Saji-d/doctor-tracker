@@ -19,12 +19,26 @@ export interface ConditionBreakdownEntry {
   count: number;
 }
 
+export interface RecentPatientEntry {
+  id: string;
+  name: string;
+  age: number;
+  condition: string;
+  doctorId: string;
+  doctorName: string;
+  createdAt: string;
+}
+
 export interface DashboardSummary {
   totalDoctors: number;
   totalPatients: number;
+  newDoctorsThisMonth: number;
+  newPatientsThisMonth: number;
+  previousRangePatients: number;
   patientsPerDoctor: PatientsPerDoctorEntry[];
   dateTrend: DateTrendEntry[];
   conditionBreakdown: ConditionBreakdownEntry[];
+  recentPatients: RecentPatientEntry[];
 }
 
 export function useDashboard(range: string) {

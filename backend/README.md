@@ -46,7 +46,7 @@ flowchart LR
 | `PATCH` / `DELETE` | `/api/patients/:id` | ✅ | Edit (including reassigning doctors) / delete |
 | `GET` | `/api/dashboard/summary` | ✅ | `?range=7d\|30d\|90d` — see note below |
 
-**Dashboard note:** `totalDoctors`, `totalPatients`, `patientsPerDoctor`, and `conditionBreakdown` are always computed across *all* data; only `dateTrend` is scoped to `?range`. They're five independent queries run in parallel (`Promise.all`), not one `$facet` pipeline — a `$facet` branch can't use an index, which would have forced `dateTrend` to give up the one index that actually helps it.
+**Dashboard note:** `totalDoctors`, `totalPatients`, `patientsPerDoctor`, `conditionBreakdown`, and `recentPatients` (last 5, with doctor name) are always computed across *all* data. `newDoctorsThisMonth`/`newPatientsThisMonth` are scoped to the current calendar month. `dateTrend` and `previousRangePatients` (the count from the equal-length window immediately before it, for a genuine period-over-period comparison) are the only fields scoped to `?range`. All nine are independent queries run in parallel (`Promise.all`), not one `$facet` pipeline — a `$facet` branch can't use an index, which would have forced `dateTrend` to give up the one index that actually helps it.
 
 **Indexes:** text indexes on `doctors{name,specialization,hospital}` and `patients{name,condition}` for search; `doctors{specialization}` and `doctors{createdAt}` for filters/sort; `patients{doctorId,createdAt}` (compound) for the hottest query in the app — a doctor's patient list, paginated; `patients{condition}` and `patients{createdAt}` for the patients page's filters.
 

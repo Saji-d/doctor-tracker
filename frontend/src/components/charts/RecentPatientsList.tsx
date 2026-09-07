@@ -1,0 +1,64 @@
+"use client";
+
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import type { RecentPatientEntry } from "@/hooks/useDashboard";
+
+interface RecentPatientsListProps {
+  patients: RecentPatientEntry[];
+}
+
+function initials(name: string): string {
+  const parts = name.split(" ").filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function RecentPatientsList({ patients }: RecentPatientsListProps) {
+  if (patients.length === 0) {
+    return <p className="text-sm text-muted-foreground text-center py-10">No patients yet</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <th className="pb-2 font-medium">Name</th>
+            <th className="pb-2 font-medium">Age</th>
+            <th className="pb-2 font-medium">Condition</th>
+            <th className="pb-2 font-medium">Doctor</th>
+            <th className="pb-2 text-right font-medium">Date</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {patients.map((p) => (
+            <tr key={p.id}>
+              <td className="py-2.5 pr-2">
+                <span className="flex items-center gap-2.5">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-info/10 text-[11px] font-semibold text-info">
+                    {initials(p.name)}
+                  </span>
+                  <span className="font-medium">{p.name}</span>
+                </span>
+              </td>
+              <td className="py-2.5 text-muted-foreground">{p.age}</td>
+              <td className="py-2.5">
+                <Badge variant="secondary">{p.condition}</Badge>
+              </td>
+              <td className="py-2.5">
+                <Link href={`/doctors/${p.doctorId}`} className="text-primary hover:underline">
+                  {p.doctorName}
+                </Link>
+              </td>
+              <td className="py-2.5 text-right text-muted-foreground">{formatDate(p.createdAt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

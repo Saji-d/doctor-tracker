@@ -1,18 +1,32 @@
 "use client";
 
 import type { ComponentType } from "react";
+import Link from "next/link";
+import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 type Tone = "primary" | "info" | "success" | "warning";
 
-const TONE_CLASSES: Record<Tone, string> = {
-  primary: "bg-primary/10 text-primary",
-  info: "bg-info/10 text-info",
-  success: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning",
+const TONE_ICON: Record<Tone, string> = {
+  primary: "bg-primary/15 text-primary",
+  info: "bg-info/15 text-info",
+  success: "bg-success/15 text-success",
+  warning: "bg-warning/15 text-warning",
 };
+
+const TONE_CARD: Record<Tone, string> = {
+  primary: "bg-primary/5 border-primary/15",
+  info: "bg-info/5 border-info/15",
+  success: "bg-success/5 border-success/15",
+  warning: "bg-warning/5 border-warning/15",
+};
+
+interface Trend {
+  label: string;
+  direction?: "up" | "down";
+}
 
 interface StatCardProps {
   label: string;
@@ -20,24 +34,67 @@ interface StatCardProps {
   isLoading?: boolean;
   icon?: ComponentType<{ className?: string }>;
   tone?: Tone;
+  trend?: Trend;
+  caption?: string;
+  href?: string;
 }
 
-export function StatCard({ label, value, isLoading, icon: Icon, tone = "primary" }: StatCardProps) {
-  return (
-    <Card className="transition-shadow hover:shadow-md">
-      <CardHeader className="pb-2">
+export function StatCard({ label, value, isLoading, icon: Icon, tone = "primary", trend, caption, href }: StatCardProps) {
+  const card = (
+    <Card size="sm" className={cn("relative overflow-hidden transition-shadow hover:shadow-md", TONE_CARD[tone])}>
+      <CardHeader className="pb-1.5">
         <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
         {Icon && (
           <CardAction>
-            <div className={cn("flex size-8 items-center justify-center rounded-md", TONE_CLASSES[tone])}>
+            <div className={cn("flex size-8 items-center justify-center rounded-lg", TONE_ICON[tone])}>
               <Icon className="size-4" />
             </div>
           </CardAction>
         )}
       </CardHeader>
-      <CardContent>
-        {isLoading ? <Skeleton className="h-8 w-16" /> : <p className="text-3xl font-semibold tabular-nums">{value}</p>}
+      <CardContent className="space-y-1">
+        {isLoading ? (
+          <Skeleton className="h-7 w-16" />
+        ) : (
+          <p className="text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
+        )}
+        {!isLoading && trend && (
+          <p
+            className={cn(
+              "flex items-center gap-1 text-xs font-medium",
+              trend.direction === "down" ? "text-destructive" : "text-success"
+            )}
+          >
+            {trend.direction === "down" ? (
+              <TrendingDown className="size-3.5 shrink-0" />
+            ) : (
+              <TrendingUp className="size-3.5 shrink-0" />
+            )}
+            <span className="truncate">{trend.label}</span>
+          </p>
+        )}
+        {!isLoading && !trend && caption && <p className="text-xs text-muted-foreground">{caption}</p>}
       </CardContent>
+      {href && (
+        <ArrowRight
+          aria-hidden="true"
+          className="absolute right-4 bottom-4 size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+        />
+      )}
     </Card>
   );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        aria-label={`${label}: ${value}. View details`}
+        className="group block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      >
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 }

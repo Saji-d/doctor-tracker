@@ -1,0 +1,167 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { LayoutDashboard, Stethoscope, Users, Menu, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { apiClient } from "@/lib/api-client";
+import { Button } from "@/components/ui/button";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/doctors", label: "Doctors", icon: Stethoscope },
+  { href: "/patients", label: "Patients", icon: Users },
+];
+
+function Brand() {
+  return (
+    <div className="flex items-center gap-2.5 px-4 py-5">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Stethoscope className="size-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold leading-tight">Doctor Tracker</p>
+        <p className="truncate text-xs text-muted-foreground">Doctor &amp; patient records, organized</p>
+      </div>
+    </div>
+  );
+}
+
+function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+  const pathname = usePathname();
+  return (
+    <nav className="flex-1 space-y-1 px-3">
+      {NAV_ITEMS.map((item) => {
+        const isActive = pathname.startsWith(item.href);
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            aria-current={isActive ? "page" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Icon className="size-4.5" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+// A small, self-contained illustration (no external image/asset) so the
+// sidebar's lower half doesn't read as empty space on tall viewports —
+// purely decorative, built from the theme's own tokens so it adapts to
+// dark mode automatically.
+function SidebarIllustration() {
+  return (
+    <div className="hidden px-4 py-2 lg:block xl:px-5">
+      <div className="rounded-xl bg-muted/40 p-4 text-center">
+        <svg viewBox="0 0 160 140" className="mx-auto h-20 w-auto" role="img" aria-label="Illustration of a doctor">
+          <path
+            d="M32 132 C32 96 52 80 80 80 C108 80 128 96 128 132 Z"
+            fill="var(--card)"
+            stroke="var(--border)"
+            strokeWidth="2"
+          />
+          <path
+            d="M64 84 L80 104 L96 84"
+            fill="none"
+            stroke="var(--primary)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="80" cy="46" r="30" fill="var(--muted)" stroke="var(--border)" strokeWidth="2" />
+          <path
+            d="M56 88 C50 100 50 116 62 122 C72 127 82 121 80 110"
+            fill="none"
+            stroke="var(--primary)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          <circle cx="80" cy="111" r="5" fill="var(--primary)" />
+          <rect x="72" y="94" width="16" height="16" rx="4" fill="var(--success)" opacity="0.15" />
+          <path d="M76 102 h8 M80 98 v8" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        <p className="mt-3 text-xs leading-snug text-muted-foreground italic">
+          &ldquo;Organized care starts with organized records.&rdquo;
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SidebarFooter() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  async function handleLogout() {
+    await apiClient.post("/auth/logout");
+    queryClient.setQueryData(["auth", "me"], undefined);
+    router.push("/login");
+  }
+
+  return (
+    <div className="border-t p-3">
+      <div className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">
+        <span className="truncate text-xs text-muted-foreground" title={user?.email}>
+          {user?.email}
+        </span>
+        <Button variant="ghost" size="icon-sm" aria-label="Log out" onClick={handleLogout} className="shrink-0">
+          <LogOut className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SidebarShell({ onNavigate, footer = true }: { onNavigate?: () => void; footer?: boolean }) {
+  return (
+    <>
+      <Brand />
+      <SidebarNav onNavigate={onNavigate} />
+      <SidebarIllustration />
+      {footer && <SidebarFooter />}
+    </>
+  );
+}
+
+export function Sidebar() {
+  return (
+    <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:border-r lg:bg-card">
+      <SidebarShell />
+    </aside>
+  );
+}
+
+export function MobileNav() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
+      <DialogPrimitive.Trigger
+        render={<Button variant="ghost" size="icon-sm" aria-label="Open navigation menu" className="lg:hidden" />}
+      >
+        <Menu className="size-5" />
+      </DialogPrimitive.Trigger>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/20 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
+        <DialogPrimitive.Popup className="fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col bg-card shadow-lg outline-none data-open:animate-in data-open:slide-in-from-left data-closed:animate-out data-closed:slide-out-to-left">
+          <DialogPrimitive.Title className="sr-only">Navigation menu</DialogPrimitive.Title>
+          <SidebarShell onNavigate={() => setOpen(false)} />
+        </DialogPrimitive.Popup>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  );
+}

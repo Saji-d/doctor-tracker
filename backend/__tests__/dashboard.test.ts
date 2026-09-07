@@ -1,5 +1,6 @@
 import request from "supertest";
 import app from "../src/app";
+import { Doctor } from "../src/models/Doctor";
 import { Patient } from "../src/models/Patient";
 import { connectTestDB, disconnectTestDB } from "./db";
 import { authedAgent, createDoctor, clearData } from "./helpers";
@@ -87,5 +88,107 @@ describe("Dashboard API", () => {
   it("400s on a malformed range", async () => {
     const res = await agent.get("/api/dashboard/summary?range=abc");
     expect(res.status).toBe(400);
+  });
+
+  it("counts new doctors and patients created in the current calendar month", async () => {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 15);
+
+    const oldDoctor = await Doctor.create({
+      name: "Dr. Old",
+      specialization: "Cardiology",
+      hospital: "Old Hospital",
+      phone: "+8801000000000",
+      email: "dr.old@test.dev",
+      createdAt: lastMonth,
+      updatedAt: lastMonth,
+    });
+    const newDoctor = await Doctor.create({
+      name: "Dr. New",
+      specialization: "Neurology",
+      hospital: "New Hospital",
+      phone: "+8801000000001",
+      email: "dr.new@test.dev",
+      createdAt: now,
+      updatedAt: now,
+    });
+    await Patient.create({
+      name: "Old Patient",
+      age: 40,
+      condition: "Asthma",
+      doctorId: oldDoctor._id,
+      createdAt: lastMonth,
+      updatedAt: lastMonth,
+    });
+    await Patient.create({
+      name: "New Patient",
+      age: 30,
+      condition: "Migraine",
+      doctorId: newDoctor._id,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const res = await agent.get("/api/dashboard/summary");
+    expect(res.body.newDoctorsThisMonth).toBe(1);
+    expect(res.body.newPatientsThisMonth).toBe(1);
+  });
+
+  it("computes previousRangePatients as the count in the period immediately before the selected range", async () => {
+    const doctor = await createDoctor(agent);
+    const now = Date.now();
+    const DAY = 24 * 60 * 60 * 1000;
+
+    // range=7d -> current window [now-7d, now], previous window [now-14d, now-7d).
+    const inPrevious = new Date(now - 10 * DAY);
+    const inCurrent = new Date(now - 3 * DAY);
+    const tooOld = new Date(now - 20 * DAY);
+
+    await Patient.create({
+      name: "P1",
+      age: 20,
+      condition: "Asthma",
+      doctorId: doctor._id,
+      createdAt: inPrevious,
+      updatedAt: inPrevious,
+    });
+    await Patient.create({
+      name: "P2",
+      age: 20,
+      condition: "Asthma",
+      doctorId: doctor._id,
+      createdAt: inCurrent,
+      updatedAt: inCurrent,
+    });
+    await Patient.create({
+      name: "P3",
+      age: 20,
+      condition: "Asthma",
+      doctorId: doctor._id,
+      createdAt: tooOld,
+      updatedAt: tooOld,
+    });
+
+    const res = await agent.get("/api/dashboard/summary?range=7d");
+    expect(res.body.previousRangePatients).toBe(1);
+    const sum = (entries: { count: number }[]) => entries.reduce((s, e) => s + e.count, 0);
+    expect(sum(res.body.dateTrend)).toBe(1);
+  });
+
+  it("returns the 5 most recently created patients with their doctor's name and id", async () => {
+    const doctor = await createDoctor(agent, { name: "Dr. Recent" });
+    for (let i = 0; i < 6; i++) {
+      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 20, condition: "Asthma" });
+    }
+
+    const res = await agent.get("/api/dashboard/summary");
+    expect(res.body.recentPatients).toHaveLength(5);
+    expect(res.body.recentPatients[0]).toMatchObject({
+      name: "Patient 5",
+      doctorName: "Dr. Recent",
+      doctorId: String(doctor._id),
+    });
+    expect(res.body.recentPatients[0]).toHaveProperty("id");
+    expect(res.body.recentPatients[0]).toHaveProperty("createdAt");
   });
 });

@@ -173,7 +173,7 @@ export default function LandingPage() {
       <section id="analytics" className="border-t">
         <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:items-center">
           <div className="space-y-6">
-            <h2 className="text-3xl font-semibold tracking-tight">Data that's actually useful</h2>
+            <h2 className="text-3xl font-semibold tracking-tight">Data that&apos;s actually useful</h2>
             <p className="text-muted-foreground text-pretty">
               The dashboard turns your doctor and patient records into a live operational picture — computed with
               indexed, parallel queries so it stays fast as the roster grows.

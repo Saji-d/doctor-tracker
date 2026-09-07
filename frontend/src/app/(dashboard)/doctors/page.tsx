@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDoctors } from "@/hooks/useDoctors";
 import { ApiClientError } from "@/lib/api-client";
@@ -29,7 +29,19 @@ function DoctorsPageContent() {
   const dateFrom = searchParams.get("dateFrom") ?? "";
   const dateTo = searchParams.get("dateTo") ?? "";
 
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  // Lazy-initialized from the URL so the dashboard's "Add Doctor" quick
+  // action can deep-link straight into this modal (/doctors?new=1); once
+  // open/closed, this is ordinary local state.
+  const [isAddOpen, setIsAddOpen] = useState(() => searchParams.get("new") === "1");
+
+  // Strips the one-shot ?new=1 param after reading it above, so a refresh
+  // or back-navigation doesn't reopen the modal.
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("new");
+    router.replace(params.toString() ? `${pathname}?${params}` : pathname);
+  }, [searchParams, router, pathname]);
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>, resetPage = true) => {
