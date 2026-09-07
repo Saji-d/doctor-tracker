@@ -8,7 +8,7 @@ interface PatientsPerDoctorChartProps {
 }
 
 // Single series (count by doctor) — one consistent accent color, no legend needed.
-const BAR_COLOR = "#2563eb";
+const BAR_COLOR = "var(--chart-1)";
 
 export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
   if (data.length === 0) {

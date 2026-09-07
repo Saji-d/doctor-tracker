@@ -8,7 +8,7 @@ interface DateTrendChartProps {
 }
 
 // Single series (registrations by day) — one consistent accent color, no legend needed.
-const LINE_COLOR = "#059669";
+const LINE_COLOR = "var(--chart-2)";
 
 export function DateTrendChart({ data }: DateTrendChartProps) {
   if (data.length === 0) {

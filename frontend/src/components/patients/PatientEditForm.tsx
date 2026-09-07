@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUpdatePatient } from "@/hooks/usePatients";
 import { ApiClientError } from "@/lib/api-client";
+import { CONDITIONS } from "@/lib/constants";
 import type { Patient } from "@/hooks/usePatients";
 import type { Doctor } from "@/hooks/useDoctors";
 
@@ -52,6 +53,7 @@ export function PatientEditForm({ patient, doctors, onSuccess }: PatientEditForm
   });
 
   const doctorId = watch("doctorId");
+  const condition = watch("condition");
 
   async function onSubmit(values: PatientEditFormValues) {
     setServerError(null);
@@ -70,28 +72,39 @@ export function PatientEditForm({ patient, doctors, onSuccess }: PatientEditForm
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <div className="space-y-1">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" {...register("name")} />
+        <Input id="name" aria-invalid={!!errors.name} {...register("name")} />
         {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
       </div>
       <div className="space-y-1">
         <Label htmlFor="age">Age</Label>
-        <Input id="age" type="number" {...register("age")} />
+        <Input id="age" type="number" aria-invalid={!!errors.age} {...register("age")} />
         {errors.age && <p className="text-sm text-destructive">{errors.age.message}</p>}
       </div>
       <div className="space-y-1">
         <Label htmlFor="condition">Condition</Label>
-        <Input id="condition" {...register("condition")} />
+        <Select value={condition} onValueChange={(v) => setValue("condition", v ?? "", { shouldValidate: true })}>
+          <SelectTrigger id="condition" aria-invalid={!!errors.condition} className="w-full">
+            <SelectValue placeholder="Select condition">{(v: string) => v}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {CONDITIONS.map((c) => (
+              <SelectItem key={c} value={c}>
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {errors.condition && <p className="text-sm text-destructive">{errors.condition.message}</p>}
       </div>
       <div className="space-y-1">
         <Label htmlFor="phone">Phone (optional)</Label>
-        <Input id="phone" placeholder="+15551234567" {...register("phone")} />
+        <Input id="phone" placeholder="+8801712345678" aria-invalid={!!errors.phone} {...register("phone")} />
         {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
       </div>
       <div className="space-y-1">
-        <Label>Doctor</Label>
+        <Label htmlFor="doctorId">Doctor</Label>
         <Select value={doctorId} onValueChange={(v) => setValue("doctorId", v ?? "", { shouldValidate: true })}>
-          <SelectTrigger>
+          <SelectTrigger id="doctorId" aria-invalid={!!errors.doctorId} className="w-full">
             <SelectValue placeholder="Select doctor">
               {(v: string) => doctors.find((d) => d._id === v)?.name ?? "Select doctor"}
             </SelectValue>

@@ -10,8 +10,11 @@ import { DataTable, Column } from "@/components/data-table/DataTable";
 import { Pagination } from "@/components/data-table/Pagination";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PatientForm } from "@/components/patients/PatientForm";
 import { Button } from "@/components/ui/button";
+import { Phone, Mail } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -38,7 +41,7 @@ function DoctorDetailContent() {
   const columns: Column<Patient>[] = [
     { key: "name", header: "Name", render: (p) => <span className="font-medium">{p.name}</span> },
     { key: "age", header: "Age", render: (p) => p.age },
-    { key: "condition", header: "Condition", render: (p) => p.condition },
+    { key: "condition", header: "Condition", render: (p) => <Badge variant="secondary">{p.condition}</Badge> },
     { key: "phone", header: "Phone", render: (p) => p.phone ?? "—" },
     {
       key: "actions",
@@ -68,15 +71,31 @@ function DoctorDetailContent() {
         ← Back to Doctors
       </Link>
 
-      <div className="border rounded-lg p-4">
+      <div className="border rounded-lg shadow-sm p-4 space-y-2">
         {isDoctorLoading ? (
-          <p className="text-sm text-muted-foreground">Loading doctor...</p>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-64" />
+          </div>
         ) : (
           <>
-            <h1 className="text-2xl font-semibold">{doctor?.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {doctor?.specialization} · {doctor?.hospital}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight">{doctor?.name}</h1>
+              {doctor?.specialization && <Badge>{doctor.specialization}</Badge>}
+            </div>
+            <p className="text-sm text-muted-foreground">{doctor?.hospital}</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-sm text-muted-foreground">
+              {doctor?.phone && (
+                <span className="flex items-center gap-1.5">
+                  <Phone className="size-3.5" /> {doctor.phone}
+                </span>
+              )}
+              {doctor?.email && (
+                <span className="flex items-center gap-1.5">
+                  <Mail className="size-3.5" /> {doctor.email}
+                </span>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -94,20 +113,28 @@ function DoctorDetailContent() {
         isError={isError}
         errorMessage={error instanceof ApiClientError ? error.message : undefined}
         onRetry={() => refetch()}
-        emptyState={<p className="text-center text-sm text-muted-foreground">No patients yet for this doctor</p>}
+        emptyState={
+          <p className="text-center text-sm text-muted-foreground">
+            No patients yet for this doctor — use &ldquo;Add Patient&rdquo; to add the first one
+          </p>
+        }
+        footer={
+          data?.pagination && (
+            <Pagination
+              page={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              total={data.pagination.total}
+              limit={data.pagination.limit}
+              itemLabel="patients"
+              onChange={(p) => {
+                const sp = new URLSearchParams(searchParams.toString());
+                sp.set("page", String(p));
+                router.replace(`?${sp.toString()}`);
+              }}
+            />
+          )
+        }
       />
-
-      {data?.pagination && (
-        <Pagination
-          page={data.pagination.page}
-          totalPages={data.pagination.totalPages}
-          onChange={(p) => {
-            const sp = new URLSearchParams(searchParams.toString());
-            sp.set("page", String(p));
-            router.replace(`?${sp.toString()}`);
-          }}
-        />
-      )}
 
       <Modal open={isAddOpen} onOpenChange={setIsAddOpen} title="Add Patient" description="Add a new patient under this doctor.">
         <PatientForm doctorId={doctorId} onSuccess={() => setIsAddOpen(false)} />

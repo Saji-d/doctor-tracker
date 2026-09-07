@@ -21,6 +21,7 @@ interface DataTableProps<T> {
   onRetry?: () => void;
   emptyState?: ReactNode;
   skeletonRows?: number;
+  footer?: ReactNode;
 }
 
 export function DataTable<T>({
@@ -33,6 +34,7 @@ export function DataTable<T>({
   onRetry,
   emptyState,
   skeletonRows = 5,
+  footer,
 }: DataTableProps<T>) {
   if (isError) {
     return (
@@ -50,47 +52,53 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="border rounded-lg overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="border-b bg-muted/50">
-          <tr>
-            {columns.map((col) => (
-              <th key={col.key} className={`text-left font-medium px-4 py-2 whitespace-nowrap ${col.className ?? ""}`}>
-                {col.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            Array.from({ length: skeletonRows }).map((_, i) => (
-              <tr key={i} className="border-b last:border-0">
-                {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3">
-                    <Skeleton className="h-4 w-3/4" />
-                  </td>
-                ))}
-              </tr>
-            ))
-          ) : rows.length === 0 ? (
+    <div className="border rounded-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="border-b bg-muted/50">
             <tr>
-              <td colSpan={columns.length} className="px-4 py-10">
-                {emptyState ?? <p className="text-center text-sm text-muted-foreground">No results</p>}
-              </td>
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  className={`text-left font-medium text-xs text-muted-foreground uppercase tracking-wide px-4 py-2.5 whitespace-nowrap ${col.className ?? ""}`}
+                >
+                  {col.header}
+                </th>
+              ))}
             </tr>
-          ) : (
-            rows.map((row) => (
-              <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/30">
-                {columns.map((col) => (
-                  <td key={col.key} className={`px-4 py-3 whitespace-nowrap ${col.className ?? ""}`}>
-                    {col.render(row)}
-                  </td>
-                ))}
+          </thead>
+          <tbody>
+            {isLoading ? (
+              Array.from({ length: skeletonRows }).map((_, i) => (
+                <tr key={i} className="border-b last:border-0">
+                  {columns.map((col) => (
+                    <td key={col.key} className="px-4 py-3">
+                      <Skeleton className="h-4 w-3/4" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="px-4 py-10">
+                  {emptyState ?? <p className="text-center text-sm text-muted-foreground">No results</p>}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              rows.map((row) => (
+                <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                  {columns.map((col) => (
+                    <td key={col.key} className={`px-4 py-3 whitespace-nowrap ${col.className ?? ""}`}>
+                      {col.render(row)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      {footer && <div className="border-t bg-muted/20">{footer}</div>}
     </div>
   );
 }

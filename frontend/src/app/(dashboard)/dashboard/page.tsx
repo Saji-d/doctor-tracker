@@ -9,6 +9,7 @@ import { DateTrendChart } from "@/components/charts/DateTrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Stethoscope, Users, TrendingUp, CalendarPlus } from "lucide-react";
 
 const RANGE_OPTIONS = [
   { value: "7d", label: "Last 7 days" },
@@ -43,7 +44,10 @@ export default function DashboardPage() {
 
   return (
     <div className="p-8 space-y-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">An overview of your doctors, patients, and recent activity.</p>
+      </div>
 
       {isEmpty ? (
         <div className="border rounded-lg p-12 text-center space-y-2">
@@ -52,10 +56,10 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard label="Total Doctors" value={totalDoctors} isLoading={isLoading} />
-            <StatCard label="Total Patients" value={totalPatients} isLoading={isLoading} />
-            <StatCard label="Avg Patients / Doctor" value={avgPerDoctor} isLoading={isLoading} />
-            <StatCard label={`New Patients (${range})`} value={newInRange} isLoading={isLoading} />
+            <StatCard label="Total Doctors" value={totalDoctors} isLoading={isLoading} icon={Stethoscope} />
+            <StatCard label="Total Patients" value={totalPatients} isLoading={isLoading} icon={Users} />
+            <StatCard label="Avg Patients / Doctor" value={avgPerDoctor} isLoading={isLoading} icon={TrendingUp} />
+            <StatCard label={`New Patients (${range})`} value={newInRange} isLoading={isLoading} icon={CalendarPlus} />
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4">

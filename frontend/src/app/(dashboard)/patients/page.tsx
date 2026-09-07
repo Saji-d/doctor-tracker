@@ -14,19 +14,8 @@ import { Pagination } from "@/components/data-table/Pagination";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CONDITIONS } from "@/lib/constants";
 
-const CONDITIONS = [
-  "Hypertension",
-  "Diabetes Type 2",
-  "Asthma",
-  "Migraine",
-  "Arthritis",
-  "Eczema",
-  "Anxiety Disorder",
-  "Common Cold",
-  "Back Pain",
-  "Allergic Rhinitis",
-];
 const LIMIT = 10;
 
 function PatientsPageContent() {
@@ -89,7 +78,10 @@ function PatientsPageContent() {
 
   return (
     <div className="p-8 space-y-4">
-      <h1 className="text-2xl font-semibold">Patients</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
+        <p className="text-sm text-muted-foreground">Search, filter, and manage patients across every doctor.</p>
+      </div>
 
       <FilterBar hasActiveFilters={hasActiveFilters} onClear={() => router.replace(pathname)}>
         <SearchInput
@@ -145,15 +137,19 @@ function PatientsPageContent() {
         hasActiveFilters={hasActiveFilters}
         onEdit={(p) => setEditingPatient(p)}
         onDelete={(p) => setPatientToDelete(p)}
+        footer={
+          data?.pagination && (
+            <Pagination
+              page={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              total={data.pagination.total}
+              limit={data.pagination.limit}
+              itemLabel="patients"
+              onChange={(p) => updateParams({ page: String(p) }, false)}
+            />
+          )
+        }
       />
-
-      {data?.pagination && (
-        <Pagination
-          page={data.pagination.page}
-          totalPages={data.pagination.totalPages}
-          onChange={(p) => updateParams({ page: String(p) }, false)}
-        />
-      )}
 
       <Modal
         open={editingPatient !== null}

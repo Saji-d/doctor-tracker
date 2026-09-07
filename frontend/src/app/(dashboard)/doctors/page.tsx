@@ -13,8 +13,8 @@ import { Pagination } from "@/components/data-table/Pagination";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SPECIALIZATIONS } from "@/lib/constants";
 
-const SPECIALIZATIONS = ["Cardiology", "Dermatology", "Neurology", "Orthopedics", "Pediatrics", "General Medicine"];
 const LIMIT = 10;
 
 function DoctorsPageContent() {
@@ -57,7 +57,10 @@ function DoctorsPageContent() {
   return (
     <div className="p-8 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Doctors</h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Doctors</h1>
+          <p className="text-sm text-muted-foreground">Browse, search, and manage the doctors in your network.</p>
+        </div>
         <Button onClick={() => setIsAddOpen(true)}>Add Doctor</Button>
       </div>
 
@@ -100,15 +103,19 @@ function DoctorsPageContent() {
         errorMessage={error instanceof ApiClientError ? error.message : undefined}
         onRetry={() => refetch()}
         hasActiveFilters={hasActiveFilters}
+        footer={
+          data?.pagination && (
+            <Pagination
+              page={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              total={data.pagination.total}
+              limit={data.pagination.limit}
+              itemLabel="doctors"
+              onChange={(p) => updateParams({ page: String(p) }, false)}
+            />
+          )
+        }
       />
-
-      {data?.pagination && (
-        <Pagination
-          page={data.pagination.page}
-          totalPages={data.pagination.totalPages}
-          onChange={(p) => updateParams({ page: String(p) }, false)}
-        />
-      )}
 
       <Modal open={isAddOpen} onOpenChange={setIsAddOpen} title="Add Doctor" description="Create a new doctor record.">
         <DoctorForm onSuccess={() => setIsAddOpen(false)} />
