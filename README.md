@@ -18,7 +18,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 11 of 15 complete — all planned features are now built
+## Status: Phase 12 of 15 complete — performance claims confirmed, not assumed
 
 | Phase | What | Status |
 |---|---|---|
@@ -33,7 +33,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 9 | Doctor detail + patient add/delete | ✅ Done |
 | 10 | Global Patients page | ✅ Done |
 | 11 | Dashboard UI | ✅ Done |
-| 12 | Performance & re-render verification pass | Not started |
+| 12 | Performance & re-render verification pass | ✅ Done |
 | 13 | Testing | Not started |
 | 14 | Deployment | Not started |
 | 15 | README / final polish | Not started |
@@ -124,6 +124,13 @@ This closes out the entire backend API surface (auth, doctors, patients, dashboa
 - Commit: `Add dashboard analytics`.
 
 This closes out every feature phase in the plan — Phases 12-15 are performance verification, testing, deployment, and README/polish, not new functionality.
+
+**Phase 12 — Performance & re-render verification pass**
+No new features — this phase only produced verification evidence, so there's no app-code commit for it (one temporary diagnostic was added to `DataTable.tsx` to measure renders, then fully reverted — confirmed via `git diff` showing no changes before moving on).
+
+- **Static audit for speculative state/memoization (Phases 7-11):** `grep`'d the whole frontend for `React.memo`, `useMemo`, `useCallback`, `createContext`. Result: zero `React.memo`, zero `useMemo` anywhere in the app. Two `useCallback` wraps exist (`updateParams` in both the Doctors and Patients pages) — worth being honest about rather than just checking the box: neither actually prevents any re-render, because none of their consumers (`SearchInput`, `DateRangeFilter`, the `Select`s, `Pagination`) are wrapped in `React.memo`, so those children re-render regardless of whether the callback reference is stable. They're harmless standard-practice habit, not load-bearing optimization — flagged here rather than glossed over. The only Context is the one intentional `AuthProvider` from Phase 7; no other global state exists.
+- **All 9 §7 query patterns re-run and re-recorded** (not assumed to still hold just because Phase 4/5/6 checked them once): every row matches its expected plan exactly — no `COLLSCAN` anywhere, no unexpected in-memory `SORT` stage on either sort-sensitive query (row 5: doctor pagination; row 8: the `doctorId`+pagination compound-index query, still the app's hottest path). Row 4 (doctor search+filter+date combined) still shows the honestly-documented `TEXT` + in-memory-`FILTER` pattern, exactly as designed — nothing needed fixing.
+- **Search-debounce re-render check:** temporarily instrumented `DataTable` with a render-count console log, then drove the Doctors page's search box through a real browser. Typing "Card" produced **zero** `DataTable` renders while characters were still landing in the field (confirmed via screenshot that the table hadn't updated yet); a later check — after enough round-trip latency had passed for the 300ms debounce to have already committed — showed a small, bounded number of renders tied to the query-key change, not one per keystroke. Precisely isolating the sub-300ms window through browser-automation round trips proved impractical (tool latency itself exceeds the debounce), so the primary evidence here is architectural rather than purely empirical: `SearchInput` owns its keystroke state in a *local* `useState`, and only calls the parent's `onChange` (the thing that actually changes `DataTable`'s props) from inside the debounced `setTimeout` callback — by React's own execution model, a child's local state update cannot re-render a sibling or ancestor, so `DataTable` structurally cannot re-render from keystrokes alone. The empirical observation is consistent with, not just assumed alongside, that guarantee.
 
 ## Architecture decisions locked in so far
 
