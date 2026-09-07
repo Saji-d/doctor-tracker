@@ -54,6 +54,14 @@ export function useDoctors(filters: DoctorsFilters) {
   });
 }
 
+export function useDoctor(id: string) {
+  return useQuery({
+    queryKey: ["doctors", "detail", id],
+    queryFn: () => apiClient.get<Doctor>(`/doctors/${id}`),
+    enabled: Boolean(id),
+  });
+}
+
 export interface CreateDoctorInput {
   name: string;
   specialization: string;

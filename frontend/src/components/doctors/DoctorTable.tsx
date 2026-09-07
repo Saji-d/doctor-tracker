@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { DataTable, Column } from "@/components/data-table/DataTable";
 import type { Doctor } from "@/hooks/useDoctors";
 
@@ -14,7 +15,15 @@ interface DoctorTableProps {
 
 export function DoctorTable({ doctors, isLoading, isError, errorMessage, onRetry, hasActiveFilters }: DoctorTableProps) {
   const columns: Column<Doctor>[] = [
-    { key: "name", header: "Name", render: (d) => <span className="font-medium">{d.name}</span> },
+    {
+      key: "name",
+      header: "Name",
+      render: (d) => (
+        <Link href={`/doctors/${d._id}`} className="font-medium hover:underline">
+          {d.name}
+        </Link>
+      ),
+    },
     { key: "specialization", header: "Specialization", render: (d) => d.specialization },
     { key: "hospital", header: "Hospital", render: (d) => d.hospital },
     { key: "phone", header: "Phone", render: (d) => d.phone },
