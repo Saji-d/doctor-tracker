@@ -14,6 +14,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SPECIALIZATIONS } from "@/lib/constants";
+import { Stethoscope, Plus } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -57,11 +58,19 @@ function DoctorsPageContent() {
   return (
     <div className="p-8 space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Doctors</h1>
-          <p className="text-sm text-muted-foreground">Browse, search, and manage the doctors in your network.</p>
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Stethoscope className="size-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Doctors</h1>
+            <p className="text-sm text-muted-foreground">Browse, search, and manage the doctors in your network.</p>
+          </div>
         </div>
-        <Button onClick={() => setIsAddOpen(true)}>Add Doctor</Button>
+        <Button onClick={() => setIsAddOpen(true)}>
+          <Plus className="size-4" />
+          Add Doctor
+        </Button>
       </div>
 
       <FilterBar hasActiveFilters={hasActiveFilters} onClear={() => router.replace(pathname)}>

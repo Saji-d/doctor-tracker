@@ -160,6 +160,19 @@ No new features — this phase only produced verification evidence, so there's n
 - This file (the root progress log) and both per-app READMEs together now satisfy every item in the plan's Definition of Done.
 - Commit: `Add project READMEs, screenshots, and update frontend domain` plus this progress-log update.
 
+## Post-launch: product presentation pass
+
+After all 15 phases shipped, a follow-up pass focused purely on presentation quality — no new backend capability, nothing added to the feature list, just making the existing product look and read like a finished one.
+
+- **Public landing page** (`frontend/src/app/page.tsx`) added ahead of login — nav, hero, a feature showcase drawn from the app's actual functionality (no invented testimonials or customer counts), an analytics preview section, and a footer. It sits outside the `(dashboard)` route group and fetches no protected data, so it's safe for anonymous visitors.
+- **Color system**: extended the existing primary-blue accent with semantic `--success`/`--warning`/`--info` tokens (and their foreground pairs) in `globals.css`, used consistently for stat-card tones, page-header icon badges, avatar circles, and the dashboard's category colors — not decorative, not random per-component colors.
+- **Dashboard**: added a fifth parallel aggregation, `conditionBreakdown` (top conditions across all patients, same `Promise.all`-alongside-an-index pattern as the existing queries, not a `$facet` addition), rendered as a new horizontal bar chart. Existing stat cards got distinct tones and icon badges; chart tooltips got theme-consistent styling.
+- **Doctors/Patients/Doctor-detail pages**: avatar-initial circles, icon-labeled contact fields, badge-styled specialization/condition tags, icon-only row actions — polish only, no functional changes to search/filter/pagination/CRUD.
+- **Demo data**: `backend/src/scripts/seed.ts` now generates realistic Bangladeshi doctor/patient names (a Muslim-majority mix with a Hindu minority, matching the country's actual demographics) and Bangladesh-plausible hospital names, replacing the earlier Western placeholder names. Re-seeded against the live Atlas database.
+- **Login**: added an independent password show/hide toggle (`Eye`/`EyeOff`, proper `aria-label`), matching the landing page's visual language.
+- **A registration/signup feature was built, then deliberately reverted.** A later request asked for a full sign-up flow; before finishing verification, you re-read the assessment PDF, confirmed it only requires secure login and protected routes (not self-registration), and asked for a clean revert. `backend/src/{models/User.ts, validators/auth.validators.ts, controllers/auth.controller.ts, routes/auth.routes.ts}` were restored to their exact pre-registration content (verified byte-identical via `git diff`), the new registration test file was deleted, and the full test suite plus live curl checks against `/auth/login`, `/auth/me`, `/auth/logout`, and the now-404ing `/auth/register` confirmed no residue. The one kept, unrelated change: a `phoneRegex` constant was deduplicated into `backend/src/validators/common.ts` — pre-existing duplication, harmless, orthogonal to the revert.
+- Screenshots in `docs/screenshots/` (and `frontend/public/preview-dashboard.png`, used by the landing page hero) were recaptured against the final polished pages with the new Bangladeshi seed data; a `landing.jpg` screenshot was added since that page didn't exist when the originals were taken.
+
 ## Architecture decisions locked in so far
 
 - Two fully separate apps/repos (`backend/`, `frontend/`), not a monorepo — per PDF wording + the assignment email's two-repo deliverable, and per your explicit correction on the git structure.

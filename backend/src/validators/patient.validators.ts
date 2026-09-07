@@ -1,7 +1,5 @@
 import { z } from "zod";
-import { objectIdSchema, paginationQuerySchema, dateRangeQuerySchema } from "./common";
-
-const phoneRegex = /^\+?[0-9\s]{7,15}$/;
+import { objectIdSchema, paginationQuerySchema, dateRangeQuerySchema, phoneRegex } from "./common";
 
 export const listPatientsQuerySchema = z.object({
   query: paginationQuerySchema

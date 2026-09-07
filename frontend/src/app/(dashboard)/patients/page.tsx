@@ -15,6 +15,7 @@ import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CONDITIONS } from "@/lib/constants";
+import { Users } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -78,9 +79,14 @@ function PatientsPageContent() {
 
   return (
     <div className="p-8 space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
-        <p className="text-sm text-muted-foreground">Search, filter, and manage patients across every doctor.</p>
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-info/10 text-info">
+          <Users className="size-5" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
+          <p className="text-sm text-muted-foreground">Search, filter, and manage patients across every doctor.</p>
+        </div>
       </div>
 
       <FilterBar hasActiveFilters={hasActiveFilters} onClear={() => router.replace(pathname)}>

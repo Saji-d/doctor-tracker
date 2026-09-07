@@ -14,11 +14,17 @@ export interface DateTrendEntry {
   count: number;
 }
 
+export interface ConditionBreakdownEntry {
+  condition: string;
+  count: number;
+}
+
 export interface DashboardSummary {
   totalDoctors: number;
   totalPatients: number;
   patientsPerDoctor: PatientsPerDoctorEntry[];
   dateTrend: DateTrendEntry[];
+  conditionBreakdown: ConditionBreakdownEntry[];
 }
 
 export function useDashboard(range: string) {

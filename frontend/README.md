@@ -10,7 +10,9 @@
 
 ## Description
 
-Doctor Tracker is a secure admin console for a hospital's front desk: log in, see a live dashboard of doctors and patients, and manage both from clean, searchable, paginated tables. It's the client half of a two-app system — a Next.js single-page-feeling app that never touches the database or a password hash directly, and instead does everything over REST against the standalone [Express API](../backend/README.md). The build leans on Next.js's App Router for routing and layout composition, TanStack Query for every piece of server state (so loading/error/caching are solved once, not per-page), and shadcn/ui + Tailwind for a UI that's meant to look like a real internal tool rather than a CRUD scaffold — clean spacing, skeleton loading states, real empty/error states, and a dashboard with genuinely readable charts.
+Doctor Tracker is a secure admin console for a hospital's front desk: log in, see a live dashboard of doctors and patients, and manage both from clean, searchable, paginated tables. A public landing page introduces the product before authentication — nav, hero, a feature showcase, and an analytics preview, all built from the app's real functionality rather than invented stats or testimonials — then hands off to login. It's the client half of a two-app system — a Next.js single-page-feeling app that never touches the database or a password hash directly, and instead does everything over REST against the standalone [Express API](../backend/README.md). The build leans on Next.js's App Router for routing and layout composition, TanStack Query for every piece of server state (so loading/error/caching are solved once, not per-page), and shadcn/ui + Tailwind for a UI that's meant to look like a real internal tool rather than a CRUD scaffold — clean spacing, skeleton loading states, real empty/error states, a consistent primary/info/success/warning color system, and a dashboard with genuinely readable charts. Demo data (doctors, patients, hospitals) uses realistic Bangladeshi names, reflecting the region the product is modeled for.
+
+Signing up is intentionally not part of this app. The original spec calls for secure login and protected routes, not public self-registration — the seeded admin account is the only way in, by design, not an oversight.
 
 ## System Architecture
 
@@ -66,11 +68,15 @@ Almost everything this app renders is server state: doctors, patients, dashboard
 
 ## Visual Evidence
 
-**Login**
+**Landing** — the public page every visitor sees before signing in; nav, hero, feature showcase, and an analytics preview, no protected data exposed
+
+![Landing page](../docs/screenshots/landing.jpg)
+
+**Login** — email/password with an independent show/hide toggle on the password field
 
 ![Login page](../docs/screenshots/login.jpg)
 
-**Dashboard** — stat cards plus a patients-per-doctor bar chart and a date-trend area chart; the range selector only ever changes the trend chart, never the totals (see the backend README's [dashboard technical decision](../backend/README.md#technical-decisions) for why that matters)
+**Dashboard** — stat cards, a patients-per-doctor bar chart, a date-trend area chart, and a top-conditions breakdown, all from real seeded data; the range selector only ever changes the trend chart, never the totals (see the backend README's [dashboard technical decision](../backend/README.md#technical-decisions) for why that matters)
 
 ![Dashboard](../docs/screenshots/dashboard.jpg)
 

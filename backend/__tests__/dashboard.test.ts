@@ -73,6 +73,17 @@ describe("Dashboard API", () => {
     expect(res.body.patientsPerDoctor[1]).toMatchObject({ name: "Dr. A", count: 1 });
   });
 
+  it("breaks patients down by condition, descending by count", async () => {
+    const doctor = await createDoctor(agent);
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P3", age: 20, condition: "Migraine" });
+
+    const res = await agent.get("/api/dashboard/summary");
+    expect(res.body.conditionBreakdown[0]).toMatchObject({ condition: "Asthma", count: 2 });
+    expect(res.body.conditionBreakdown[1]).toMatchObject({ condition: "Migraine", count: 1 });
+  });
+
   it("400s on a malformed range", async () => {
     const res = await agent.get("/api/dashboard/summary?range=abc");
     expect(res.status).toBe(400);

@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { ReactNode } from "react";
+import { Pencil, Trash2, Phone } from "lucide-react";
 import { DataTable, Column } from "@/components/data-table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,11 @@ interface PatientTableProps {
   footer?: ReactNode;
 }
 
+function initials(name: string): string {
+  const parts = name.split(" ").filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+}
+
 export function PatientTable({
   patients,
   doctorNameById,
@@ -32,24 +39,65 @@ export function PatientTable({
   footer,
 }: PatientTableProps) {
   const columns: Column<Patient>[] = [
-    { key: "name", header: "Name", render: (p) => <span className="font-medium">{p.name}</span> },
-    { key: "age", header: "Age", render: (p) => p.age },
+    {
+      key: "name",
+      header: "Name",
+      render: (p) => (
+        <span className="flex items-center gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-info/10 text-xs font-semibold text-info">
+            {initials(p.name)}
+          </span>
+          <span className="font-medium">{p.name}</span>
+        </span>
+      ),
+    },
+    { key: "age", header: "Age", render: (p) => <span className="text-muted-foreground">{p.age}</span> },
     { key: "condition", header: "Condition", render: (p) => <Badge variant="secondary">{p.condition}</Badge> },
-    { key: "doctor", header: "Doctor", render: (p) => doctorNameById.get(p.doctorId) ?? "—" },
-    { key: "phone", header: "Phone", render: (p) => p.phone ?? "—" },
+    {
+      key: "doctor",
+      header: "Doctor",
+      render: (p) =>
+        doctorNameById.has(p.doctorId) ? (
+          <Link href={`/doctors/${p.doctorId}`} className="text-primary hover:underline">
+            {doctorNameById.get(p.doctorId)}
+          </Link>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: "phone",
+      header: "Phone",
+      render: (p) =>
+        p.phone ? (
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <Phone className="size-3.5 shrink-0" />
+            {p.phone}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        ),
+    },
     {
       key: "actions",
       header: "",
       render: (p) => (
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => onEdit(p)}>
-            Edit
+        <div className="flex justify-end gap-1">
+          <Button variant="ghost" size="icon-sm" aria-label={`Edit ${p.name}`} onClick={() => onEdit(p)}>
+            <Pencil className="size-3.5" />
           </Button>
-          <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(p)}>
-            Delete
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Delete ${p.name}`}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => onDelete(p)}
+          >
+            <Trash2 className="size-3.5" />
           </Button>
         </div>
       ),
+      className: "text-right",
     },
   ];
 

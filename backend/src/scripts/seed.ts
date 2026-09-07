@@ -16,11 +16,13 @@ const SPECIALIZATIONS = [
 ];
 
 const HOSPITALS = [
-  "City General Hospital",
-  "St. Mary's Medical Center",
-  "Green Valley Clinic",
-  "Sunrise Health Institute",
-  "Metro Care Hospital",
+  "Dhaka Care Medical Center",
+  "Uttara Health Institute",
+  "Dhanmondi General Hospital",
+  "Green Life Medical Center",
+  "Chattogram Care Hospital",
+  "Sylhet Medical Institute",
+  "Mirpur Community Hospital",
 ];
 
 const CONDITIONS = [
@@ -36,18 +38,20 @@ const CONDITIONS = [
   "Allergic Rhinitis",
 ];
 
+// A realistic mix of Bangladeshi given names — mostly Muslim-pattern names
+// (reflecting the country's Muslim-majority population) with a minority of
+// Hindu Bengali names, matching the country's actual demographic makeup.
 const FIRST_NAMES = [
-  "James", "Mary", "Robert", "Patricia", "John", "Jennifer", "Michael", "Linda",
-  "David", "Elizabeth", "William", "Barbara", "Richard", "Susan", "Joseph", "Jessica",
-  "Thomas", "Sarah", "Charles", "Karen", "Daniel", "Nancy", "Matthew", "Lisa",
-  "Anthony", "Betty", "Mark", "Margaret", "Donald", "Sandra",
+  "Fahim", "Tanvir", "Mahmud", "Arif", "Rafiul", "Kamal", "Shakil", "Nayeem", "Rakib", "Imran",
+  "Nusrat", "Sadia", "Farzana", "Tasnim", "Sumaiya", "Nazia", "Ayesha", "Tania", "Mahmuda", "Rima",
+  "Bikash", "Anup", "Sujon", "Provash",
+  "Priya", "Sunita", "Rina", "Shikha", "Mitali", "Anita",
 ];
 
 const LAST_NAMES = [
-  "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
-  "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson",
-  "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson",
-  "White", "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson",
+  "Rahman", "Ahmed", "Islam", "Hossain", "Chowdhury", "Karim", "Khan", "Uddin", "Alam", "Haque",
+  "Akter", "Jahan", "Siddique", "Kabir", "Rashid", "Talukder", "Sarker", "Bhuiyan", "Molla", "Sheikh",
+  "Das", "Roy", "Sarkar", "Chakraborty", "Dutta", "Paul", "Sen",
 ];
 
 function pick<T>(arr: T[]): T {

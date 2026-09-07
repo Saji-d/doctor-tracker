@@ -14,7 +14,12 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PatientForm } from "@/components/patients/PatientForm";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, ArrowLeft, Plus, Trash2, Users } from "lucide-react";
+
+function initials(name: string): string {
+  const parts = name.replace(/^Dr\.?\s*/i, "").split(" ").filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+}
 
 const LIMIT = 10;
 
@@ -47,10 +52,17 @@ function DoctorDetailContent() {
       key: "actions",
       header: "",
       render: (p) => (
-        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setPatientToDelete(p)}>
-          Delete
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Delete ${p.name}`}
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => setPatientToDelete(p)}
+        >
+          <Trash2 className="size-3.5" />
         </Button>
       ),
+      className: "text-right",
     },
   ];
 
@@ -67,42 +79,66 @@ function DoctorDetailContent() {
 
   return (
     <div className="p-8 space-y-4">
-      <Link href="/doctors" className="text-sm text-muted-foreground hover:underline">
-        ← Back to Doctors
+      <Link href="/doctors" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-3.5" />
+        Back to Doctors
       </Link>
 
-      <div className="border rounded-lg shadow-sm p-4 space-y-2">
+      <div className="border rounded-xl shadow-sm p-6">
         {isDoctorLoading ? (
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-64" />
+          <div className="flex items-center gap-4">
+            <Skeleton className="size-14 shrink-0 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
           </div>
         ) : (
-          <>
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">{doctor?.name}</h1>
-              {doctor?.specialization && <Badge>{doctor.specialization}</Badge>}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                {doctor ? initials(doctor.name) : ""}
+              </span>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-semibold tracking-tight">{doctor?.name}</h1>
+                  {doctor?.specialization && <Badge>{doctor.specialization}</Badge>}
+                </div>
+                <p className="text-sm text-muted-foreground">{doctor?.hospital}</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  {doctor?.phone && (
+                    <span className="flex items-center gap-1.5">
+                      <Phone className="size-3.5" /> {doctor.phone}
+                    </span>
+                  )}
+                  {doctor?.email && (
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="size-3.5" /> {doctor.email}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">{doctor?.hospital}</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-sm text-muted-foreground">
-              {doctor?.phone && (
-                <span className="flex items-center gap-1.5">
-                  <Phone className="size-3.5" /> {doctor.phone}
-                </span>
-              )}
-              {doctor?.email && (
-                <span className="flex items-center gap-1.5">
-                  <Mail className="size-3.5" /> {doctor.email}
-                </span>
-              )}
+            <div className="flex items-center gap-2 rounded-lg bg-info/10 px-4 py-2.5 text-info">
+              <Users className="size-4" />
+              <div className="text-sm">
+                <span className="font-semibold tabular-nums">{data?.pagination.total ?? 0}</span>{" "}
+                <span className="text-info/80">patient{data?.pagination.total === 1 ? "" : "s"}</span>
+              </div>
             </div>
-          </>
+          </div>
         )}
       </div>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-medium">Patients</h2>
-        <Button onClick={() => setIsAddOpen(true)}>Add Patient</Button>
+        <div>
+          <h2 className="text-lg font-medium">Patients</h2>
+          <p className="text-sm text-muted-foreground">Everyone currently assigned to this doctor.</p>
+        </div>
+        <Button onClick={() => setIsAddOpen(true)}>
+          <Plus className="size-4" />
+          Add Patient
+        </Button>
       </div>
 
       <DataTable

@@ -12,11 +12,17 @@ export interface DateTrendEntry {
   count: number;
 }
 
+export interface ConditionBreakdownEntry {
+  condition: string;
+  count: number;
+}
+
 export interface DashboardSummary {
   totalDoctors: number;
   totalPatients: number;
   patientsPerDoctor: PatientsPerDoctorEntry[];
   dateTrend: DateTrendEntry[];
+  conditionBreakdown: ConditionBreakdownEntry[];
 }
 
 function parseRangeDays(range: string): number {
@@ -35,7 +41,7 @@ export async function getSummary(range: string): Promise<DashboardSummary> {
   const days = parseRangeDays(range);
   const rangeStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  const [totalDoctors, totalPatients, patientsPerDoctorRaw, dateTrendRaw] = await Promise.all([
+  const [totalDoctors, totalPatients, patientsPerDoctorRaw, dateTrendRaw, conditionBreakdownRaw] = await Promise.all([
     Doctor.countDocuments(),
     Patient.countDocuments(),
     Patient.aggregate([
@@ -51,6 +57,16 @@ export async function getSummary(range: string): Promise<DashboardSummary> {
       { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]),
+    // Same shape/tradeoff as patientsPerDoctor above: a $group over the whole
+    // collection can't use an index (nothing indexes "group by condition"),
+    // which is fine at this project's scale — same accepted tradeoff, not a
+    // new one.
+    Patient.aggregate([
+      { $group: { _id: "$condition", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 6 },
+      { $project: { condition: "$_id", count: 1, _id: 0 } },
+    ]),
   ]);
 
   const patientsPerDoctor: PatientsPerDoctorEntry[] = patientsPerDoctorRaw.map((d) => ({
@@ -60,6 +76,10 @@ export async function getSummary(range: string): Promise<DashboardSummary> {
   }));
 
   const dateTrend: DateTrendEntry[] = dateTrendRaw.map((d) => ({ date: d._id, count: d.count }));
+  const conditionBreakdown: ConditionBreakdownEntry[] = conditionBreakdownRaw.map((d) => ({
+    condition: d.condition,
+    count: d.count,
+  }));
 
-  return { totalDoctors, totalPatients, patientsPerDoctor, dateTrend };
+  return { totalDoctors, totalPatients, patientsPerDoctor, dateTrend, conditionBreakdown };
 }

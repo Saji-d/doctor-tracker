@@ -29,7 +29,13 @@ export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
         />
         <Tooltip
           cursor={{ fill: "var(--muted)" }}
-          contentStyle={{ fontSize: 12, borderRadius: 8, borderColor: "var(--border)" }}
+          contentStyle={{
+            fontSize: 12,
+            borderRadius: 8,
+            borderColor: "var(--border)",
+            backgroundColor: "var(--card)",
+            color: "var(--card-foreground)",
+          }}
         />
         <Bar dataKey="count" name="Patients" fill={BAR_COLOR} radius={[0, 4, 4, 0]} maxBarSize={28} />
       </BarChart>

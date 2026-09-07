@@ -27,7 +27,15 @@ export function DateTrendChart({ data }: DateTrendChartProps) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
         <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
         <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
-        <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, borderColor: "var(--border)" }} />
+        <Tooltip
+          contentStyle={{
+            fontSize: 12,
+            borderRadius: 8,
+            borderColor: "var(--border)",
+            backgroundColor: "var(--card)",
+            color: "var(--card-foreground)",
+          }}
+        />
         <Area
           type="monotone"
           dataKey="count"
