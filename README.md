@@ -18,7 +18,9 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 
 `backend/.env` and `frontend/.env.local` hold real local secrets (Atlas URI, JWT secret, seeded admin password, API URL) — gitignored, never committed. Each app's `.env.example` documents its variables with placeholders.
 
-## Status: Phase 13 of 15 complete — backend and frontend test suites green, manual QA done
+## Status: Phase 14 of 15 complete — both apps live and talking to each other
+
+**Live URLs:** frontend https://doctor-tracker-seven.vercel.app · backend https://doctor-tracker-backend-jn3d.onrender.com
 
 | Phase | What | Status |
 |---|---|---|
@@ -35,7 +37,7 @@ X:\ZnZ\                    ONE git repo, connected to https://github.com/Saji-d/
 | 11 | Dashboard UI | ✅ Done |
 | 12 | Performance & re-render verification pass | ✅ Done |
 | 13 | Testing | ✅ Done |
-| 14 | Deployment | Not started |
+| 14 | Deployment | ✅ Done |
 | 15 | README / final polish | Not started |
 
 ## What's been built so far
@@ -139,6 +141,16 @@ No new features — this phase only produced verification evidence, so there's n
 - Also fixed along the way: an Express deprecation warning (`res.clearCookie` was being called with a `maxAge`, which v5 will ignore) — split `cookieOptions()` into a `maxAge`-free `baseCookieOptions()` used by both `res.cookie()` and `res.clearCookie()`, and a `cookieOptions()` that only adds `maxAge` for the login path.
 - **Manual QA (plan §14):** most of the checklist (login success/failure, logged-out redirect, doctors/patients CRUD+search+filter+pagination, dashboard totals-vs-range-independence, graceful network-error state) was already exercised live via browser automation in Phases 7-11 and re-confirmed rather than re-run from scratch. The one genuinely new item this phase was a narrow-viewport pass — the sandboxed browser's `resize_window` call reported success but didn't actually change `window.innerWidth` (confirmed via a direct JS check, on a fresh tab too), so this was verified by code review instead: `DataTable`'s wrapper already has `overflow-x-auto` and `FilterBar` already uses `flex-wrap` (both correct from when they were built), but `NavBar` laid out the brand, 3 links, and logout button in one non-wrapping row with `px-8` padding — comfortably wider than a 375-390px screen, so it would have caused horizontal page overflow on every route. Fixed with `flex-wrap` + responsive padding (`px-4 sm:px-8`) rather than building a hamburger/drawer component, since wrapping to a second line is enough for 3 links and doesn't add UI that wasn't asked for.
 - Commit: `Add backend and frontend test suites, fix mobile nav overflow`.
+
+**Phase 14 — Deployment**
+- Backend deployed to Render (free Web Service tier), frontend to Vercel (Hobby tier), both connected via GitHub for auto-deploy on push to `main`. MongoDB Atlas was already set up in an earlier phase.
+- **Naming:** you asked to confirm both domains before they were picked. The backend's exact name `doctor-tracker-backend` was already taken globally on Render, so it auto-suffixed to `doctor-tracker-backend-jn3d.onrender.com`; Render's rename UI only changes the display name, not the subdomain, so that suffix is permanent short of deleting and recreating the service (not attempted, since a fresh attempt isn't guaranteed a cleaner name either). Same story on Vercel — `doctor-tracker` was taken, landing on `doctor-tracker-seven.vercel.app`.
+- **Two real deployment bugs found and fixed, not just retried until green:**
+  1. **Build failure #1** — Render's `npm install` (unlike `npm ci`) doesn't strictly follow `package-lock.json`, so it picked a newer TypeScript minor version than what we'd tested against, one that hard-removed the `moduleResolution: "node"` config option our `tsconfig.json` still had. Fixed by dropping that line — the default resolution for a `commonjs` module already does the right thing, so it's a no-op locally and a real fix on Render. Also switched the build command to `npm ci` for reproducible installs matching the lockfile.
+  2. **Build failure #2** — with `npm ci` in place, the build broke a different way: every file importing `express`, `bcryptjs`, or `jsonwebtoken` failed with "could not find a declaration file," and `console`/`process` were reported as undefined globals. Cause: `NODE_ENV=production` was already set as an app env var (correctly, for the app's own runtime logic), but npm on Render also reads that same variable to decide whether to skip `devDependencies` — which is where `typescript` and every `@types/*` package live. Fixed by changing the build command to `npm ci --include=dev && npm run build`, forcing dev dependencies in for the build step regardless of the runtime `NODE_ENV`.
+- **CORS re-verified against the real deployed origin**, not assumed: `curl -X OPTIONS` with `Origin: https://doctor-tracker-seven.vercel.app` against the live backend confirmed `access-control-allow-origin` echoes that exact origin and `access-control-allow-credentials: true` — the pairing that makes the cross-domain cookie actually get sent.
+- **Full live auth flow walked through in a real browser against the production URLs** (the single highest-risk item per the plan, since localhost's relaxed cookie rules can mask a production-only failure): login with the seeded admin → dashboard renders real data (12 doctors, 80 patients, both charts) → hard refresh keeps the session → logout → refreshing `/dashboard` while logged out redirects back to `/login`. All passed on the first fully-configured attempt.
+- Commits: `Fix backend build failure on Render` (the `tsconfig.json` fix — the second build-command fix was applied directly in Render's dashboard, since it's deploy configuration rather than app code) plus this progress-log update.
 
 ## Architecture decisions locked in so far
 
