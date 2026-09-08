@@ -120,7 +120,7 @@ export function PatientTable({
           </Button>
         </div>
       ),
-      className: "text-center",
+      className: "text-left",
     },
   ];
 

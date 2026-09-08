@@ -162,7 +162,7 @@ export function DoctorTable({
           </Button>
         </div>
       ),
-      className: "text-center",
+      className: "text-left",
     },
   ];
 

@@ -122,7 +122,7 @@ function DoctorDetailContent() {
           </Button>
         </div>
       ),
-      className: "text-center",
+      className: "text-left",
     },
   ];
 
