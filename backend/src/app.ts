@@ -24,6 +24,10 @@ app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({ name: "Doctor Tracker API", status: "ok" });
+});
+
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
