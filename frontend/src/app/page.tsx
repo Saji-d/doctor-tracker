@@ -137,7 +137,7 @@ export default function LandingPage() {
                 <span className="size-2.5 rounded-full bg-success/50" />
               </div>
               <Image
-                src="/dashboard-hero.png"
+                src="/dashboard.png"
                 alt="Doctor Tracker dashboard showing doctor and patient totals, a patients-per-doctor chart, and a new-patient trend chart"
                 width={1920}
                 height={926}
