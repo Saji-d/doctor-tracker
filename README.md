@@ -230,16 +230,16 @@ CORS is locked to a single `FRONTEND_URL` origin; the auth cookie is `httpOnly; 
 
 **Mobile** — same pages at a real 390px-wide viewport, no horizontal overflow, nav collapses to a working hamburger menu.
 
-<table>
+<table align="center">
 <tr>
-<td><img src="docs/screenshots/mobile-landing.jpeg" width="180"></td>
-<td><img src="docs/screenshots/mobile-login.jpeg" width="180"></td>
-<td><img src="docs/screenshots/mobile-dashboard.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-landing.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-login.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-dashboard.jpeg" width="180"></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/mobile-doctors.jpeg" width="180"></td>
-<td><img src="docs/screenshots/mobile-doctor-detail.jpeg" width="180"></td>
-<td><img src="docs/screenshots/mobile-patients.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-doctors.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-doctor-detail.jpeg" width="180"></td>
+<td align="center"><img src="docs/screenshots/mobile-patients.jpeg" width="180"></td>
 </tr>
 </table>
 
