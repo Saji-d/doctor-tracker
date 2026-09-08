@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState, type ComponentType } from "react";
 import Link from "next/link";
 import { useDashboard } from "@/hooks/useDashboard";
 import { ApiClientError } from "@/lib/api-client";
-import { useAuth } from "@/lib/auth";
 import { getDhakaDaypart, getDhakaGreeting, formatDhakaDate, type Daypart } from "@/lib/dhaka-time";
 import { StatCard } from "@/components/charts/StatCard";
 import { PatientsPerDoctorChart } from "@/components/charts/PatientsPerDoctorChart";
@@ -99,7 +98,6 @@ export default function DashboardPage() {
   // query as `data` (same query key), so it costs nothing extra; it only
   // fires a second request if the user changes the chart's range control.
   const { data: last30 } = useDashboard("30d");
-  const { user } = useAuth();
   const { greeting, Icon: GreetingIcon, date } = useGreeting();
   const { thirtyDaysAgo, today } = useMemo(() => {
     const now = new Date();
@@ -163,10 +161,7 @@ export default function DashboardPage() {
             <GreetingIcon className="size-4.5" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">
-              {greeting}
-              {user?.email ? `, ${user.email.split("@")[0].replace(/[._]/g, " ")}` : ""}!
-            </h1>
+            <h1 className="text-xl font-semibold tracking-tight">{greeting}, Sajid!</h1>
             <p className="text-sm text-muted-foreground">An overview of your doctors, patients, and recent activity.</p>
           </div>
         </div>
@@ -227,7 +222,7 @@ export default function DashboardPage() {
               <CardHeader className="flex flex-row items-start justify-between">
                 <div>
                   <CardTitle className="text-base">Patients per Doctor</CardTitle>
-                  <CardDescription>Top 10 doctors by active patient count</CardDescription>
+                  <CardDescription>Top 5 doctors by active patient count</CardDescription>
                 </div>
                 <Link href="/doctors" className="text-sm font-medium text-primary hover:underline shrink-0">
                   View All

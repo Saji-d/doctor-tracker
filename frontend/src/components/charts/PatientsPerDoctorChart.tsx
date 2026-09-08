@@ -10,14 +10,21 @@ interface PatientsPerDoctorChartProps {
 // Single series (count by doctor) — one consistent accent color, no legend needed.
 const BAR_COLOR = "var(--chart-1)";
 
+// Backend returns up to 10, already sorted descending by count; showing only
+// the top 5 here is a frontend-only trim, not a re-sort — the ranking is
+// already correct coming in.
+const MAX_DOCTORS = 5;
+
 export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
   if (data.length === 0) {
     return <p className="text-sm text-muted-foreground text-center py-16">No patient data yet</p>;
   }
 
+  const shown = data.slice(0, MAX_DOCTORS);
+
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
+    <ResponsiveContainer width="100%" height={190}>
+      <BarChart data={shown} layout="vertical" margin={{ left: 8, right: 16 }}>
         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
         <YAxis
