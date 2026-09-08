@@ -68,46 +68,41 @@ Almost everything this app renders is server state: doctors, patients, dashboard
 
 ## Visual Evidence
 
-**Landing** — the public page every visitor sees before signing in; responsive nav, hero with the real dashboard preview, a capability strip, feature cards, an architecture section, and a how-it-works flow — no protected data exposed
-
-![Landing page](../docs/screenshots/landing.jpg)
-
-**Login** — email/password with an independent show/hide toggle on the password field
-
-![Login page](../docs/screenshots/login.jpg)
-
-**Dashboard** — stat cards, a patients-per-doctor bar chart, a date-trend area chart, and a top-conditions breakdown, all from real seeded data; the range selector only ever changes the trend chart, never the totals (see the backend README's [dashboard technical decision](../backend/README.md#technical-decisions) for why that matters)
-
-![Dashboard](../docs/screenshots/dashboard.png)
-
-**Doctors** — search, specialization filter, date-range filter, and pagination, all combinable
-
-![Doctors list](../docs/screenshots/doctors.jpg)
-
-**Doctor detail** — that doctor's patients only, scoped by the route param, add/delete inline
-
-![Doctor detail](../docs/screenshots/doctor-detail.jpg)
-
-**Patients** — the cross-doctor view, with condition + doctor filters and inline edit/delete
-
-![Patients list](../docs/screenshots/patients.jpg)
-
-**Mobile** — a real 390×844 layout viewport, achieved by embedding the app in a sized `<iframe>` (the browser tool's own window-resize call doesn't affect its rendered viewport — confirmed via `window.innerWidth` staying fixed regardless — but a same-origin iframe gets its own independent `contentWindow`, which does respect the size it's given). Verified directly, not assumed: `document.documentElement.scrollWidth === clientWidth` on every page below (zero horizontal overflow), and the nav's hamburger menu opens and closes correctly.
-
 <table>
 <tr>
-<td><img src="../docs/screenshots/mobile-landing.png" alt="Landing page on mobile" width="200"></td>
-<td><img src="../docs/screenshots/mobile-login.png" alt="Login page on mobile" width="200"></td>
-<td><img src="../docs/screenshots/mobile-dashboard.png" alt="Dashboard on mobile" width="200"></td>
+<td width="50%"><b>Landing</b><br>Responsive nav, hero with the real dashboard preview, feature cards, architecture section, how-it-works flow — no protected data exposed<br><img src="../docs/screenshots/landing.png" width="440"></td>
+<td width="50%"><b>Login</b><br>Email/password with an independent show/hide toggle<br><img src="../docs/screenshots/login.png" width="440"></td>
 </tr>
 <tr>
-<td><img src="../docs/screenshots/mobile-doctors.png" alt="Doctors list on mobile" width="200"></td>
-<td><img src="../docs/screenshots/mobile-doctor-detail.png" alt="Doctor detail on mobile" width="200"></td>
-<td><img src="../docs/screenshots/mobile-patients.png" alt="Patients list on mobile" width="200"></td>
+<td><b>Dashboard</b><br>Stat cards, patients-per-doctor bar chart, date-trend area chart, condition breakdown, all from real seeded data<br><img src="../docs/screenshots/dashboard.png" width="440"></td>
+<td><b>Doctors</b><br>Search, specialization filter, date-range filter, pagination, all combinable<br><img src="../docs/screenshots/doctors.png" width="440"></td>
+</tr>
+<tr>
+<td><b>Doctor detail</b><br>That doctor's patients only, scoped by the route param, add/delete inline<br><img src="../docs/screenshots/doctor-detail.png" width="440"></td>
+<td><b>Patients</b><br>Cross-doctor view, condition + doctor filters, inline edit (including reassignment) and delete<br><img src="../docs/screenshots/patients.png" width="440"></td>
+</tr>
+<tr>
+<td><b>Add Doctor</b><br>Create form over the doctors table, validated client and server side<br><img src="../docs/screenshots/add-doctor.png" width="440"></td>
+<td><b>Add Patient</b><br>Create form with a doctor picker, opened from the patients page<br><img src="../docs/screenshots/add-patient.png" width="440"></td>
 </tr>
 </table>
 
-On the patients table specifically, the table itself scrolls horizontally inside its own `overflow-x-auto` container rather than the page — confirmed the same way (page-level `scrollWidth` stays at the viewport width even though the table's columns are wider).
+The dashboard's range selector only ever changes the trend chart, never the totals — see the backend README's [dashboard technical decision](../backend/README.md#technical-decisions) for why that matters.
+
+**Mobile** — a real 390×844 layout viewport, achieved by embedding the app in a sized `<iframe>` (the browser tool's own window-resize call doesn't affect its rendered viewport — confirmed via `window.innerWidth` staying fixed regardless — but a same-origin iframe gets its own independent `contentWindow`, which does respect the size it's given). Verified directly, not assumed: `document.documentElement.scrollWidth === clientWidth` on every page below (zero horizontal overflow), and the nav's hamburger menu opens and closes correctly. On the patients page specifically, the table itself scrolls horizontally inside its own `overflow-x-auto` container rather than the page.
+
+<table>
+<tr>
+<td><img src="../docs/screenshots/mobile-landing.jpeg" alt="Landing page on mobile" width="180"></td>
+<td><img src="../docs/screenshots/mobile-login.jpeg" alt="Login page on mobile" width="180"></td>
+<td><img src="../docs/screenshots/mobile-dashboard.jpeg" alt="Dashboard on mobile" width="180"></td>
+</tr>
+<tr>
+<td><img src="../docs/screenshots/mobile-doctors.jpeg" alt="Doctors list on mobile" width="180"></td>
+<td><img src="../docs/screenshots/mobile-doctor-detail.jpeg" alt="Doctor detail on mobile" width="180"></td>
+<td><img src="../docs/screenshots/mobile-patients.jpeg" alt="Patients list on mobile" width="180"></td>
+</tr>
+</table>
 
 ## Project Links
 
