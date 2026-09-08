@@ -237,7 +237,7 @@ Two decisions worth calling out specifically (condensed here — full write-ups 
 
 **Dashboard** — stat cards, patients-per-doctor chart, date-trend chart, and condition breakdown, from real seeded data
 
-![Dashboard](docs/screenshots/dashboard.jpg)
+![Dashboard](docs/screenshots/dashboard.png)
 
 **Doctors** — search, specialization filter, date-range filter, and pagination, all combinable
 

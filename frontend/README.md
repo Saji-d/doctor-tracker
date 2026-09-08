@@ -78,7 +78,7 @@ Almost everything this app renders is server state: doctors, patients, dashboard
 
 **Dashboard** — stat cards, a patients-per-doctor bar chart, a date-trend area chart, and a top-conditions breakdown, all from real seeded data; the range selector only ever changes the trend chart, never the totals (see the backend README's [dashboard technical decision](../backend/README.md#technical-decisions) for why that matters)
 
-![Dashboard](../docs/screenshots/dashboard.jpg)
+![Dashboard](../docs/screenshots/dashboard.png)
 
 **Doctors** — search, specialization filter, date-range filter, and pagination, all combinable
 

@@ -137,10 +137,10 @@ export default function LandingPage() {
                 <span className="size-2.5 rounded-full bg-success/50" />
               </div>
               <Image
-                src="/preview-dashboard.png"
+                src="/dashboard-hero.png"
                 alt="Doctor Tracker dashboard showing doctor and patient totals, a patients-per-doctor chart, and a new-patient trend chart"
-                width={1568}
-                height={700}
+                width={1920}
+                height={926}
                 priority
                 className="w-full"
               />
