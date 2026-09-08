@@ -49,6 +49,7 @@ export function DoctorTable({
           <span className="font-medium group-hover:underline">{d.name}</span>
         </Link>
       ),
+      headerClassName: "text-center translate-x-[5px]",
     },
     {
       key: "specialization",
@@ -63,6 +64,8 @@ export function DoctorTable({
           </Badge>
         );
       },
+      className: "text-center",
+      headerClassName: "text-center translate-x-[2px]",
     },
     {
       key: "hospital",
@@ -73,6 +76,7 @@ export function DoctorTable({
           <span className="min-w-0 truncate">{d.hospital}</span>
         </span>
       ),
+      headerClassName: "text-center translate-x-[-10px]",
     },
     {
       key: "phone",
@@ -83,6 +87,7 @@ export function DoctorTable({
           {d.phone}
         </span>
       ),
+      headerClassName: "text-center",
     },
     {
       key: "email",
@@ -93,6 +98,12 @@ export function DoctorTable({
           <span className="min-w-0 truncate">{d.email}</span>
         </span>
       ),
+      // className moves the row content; headerClassName independently
+      // positions the heading (translate-x is a transform, so it shifts a
+      // block-level flex span just like it shifts plain header text, unlike
+      // text-align which the flex span ignores).
+      className: "text-center translate-x-2",
+      headerClassName: "text-center translate-x-[-2px]",
     },
     {
       key: "patients",
@@ -104,6 +115,7 @@ export function DoctorTable({
         </span>
       ),
       className: "text-center",
+      headerClassName: "text-center translate-x-[3px]",
     },
     {
       key: "status",

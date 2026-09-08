@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { usePatients, useDeletePatient, type Patient } from "@/hooks/usePatients";
 import { useDoctors } from "@/hooks/useDoctors";
 import { ApiClientError } from "@/lib/api-client";
 import { PatientTable } from "@/components/patients/PatientTable";
+import { PatientForm } from "@/components/patients/PatientForm";
 import { PatientEditForm } from "@/components/patients/PatientEditForm";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { SearchInput } from "@/components/filters/SearchInput";
@@ -13,9 +14,10 @@ import { DateRangeFilter } from "@/components/filters/DateRangeFilter";
 import { Pagination } from "@/components/data-table/Pagination";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CONDITIONS } from "@/lib/constants";
-import { Users, Stethoscope, UserRound } from "lucide-react";
+import { Users, Stethoscope, UserRound, Plus, CheckCircle2 } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -33,6 +35,16 @@ function PatientsPageContent() {
 
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+  const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
+  const [justCreatedName, setJustCreatedName] = useState<string | null>(null);
+
+  // Brief self-dismissing confirmation banner — no toast library in this
+  // codebase, so a few seconds of local state is the whole mechanism.
+  useEffect(() => {
+    if (!justCreatedName) return;
+    const timer = setTimeout(() => setJustCreatedName(null), 4000);
+    return () => clearTimeout(timer);
+  }, [justCreatedName]);
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>, resetPage = true) => {
@@ -79,15 +91,31 @@ function PatientsPageContent() {
 
   return (
     <div className="p-8 space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-info/10 text-info">
-          <Users className="size-5" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-info/10 text-info">
+            <Users className="size-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
+            <p className="text-sm text-muted-foreground">Search, filter, and manage patients across every doctor.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
-          <p className="text-sm text-muted-foreground">Search, filter, and manage patients across every doctor.</p>
-        </div>
+        <Button
+          className="bg-success text-success-foreground hover:bg-success/90"
+          onClick={() => setIsAddPatientOpen(true)}
+        >
+          <Plus className="size-4" />
+          Add Patient
+        </Button>
       </div>
+
+      {justCreatedName && (
+        <div className="flex items-center gap-2 rounded-lg border border-success/25 bg-success/10 p-3 text-sm text-success">
+          <CheckCircle2 className="size-4 shrink-0" />
+          {justCreatedName}
+        </div>
+      )}
 
       <FilterBar hasActiveFilters={hasActiveFilters} onClear={() => router.replace(pathname)}>
         <SearchInput
@@ -158,6 +186,21 @@ function PatientsPageContent() {
           )
         }
       />
+
+      <Modal
+        open={isAddPatientOpen}
+        onOpenChange={setIsAddPatientOpen}
+        title="Add Patient"
+        description="Create a new patient record."
+      >
+        <PatientForm
+          doctors={doctors}
+          onSuccess={() => {
+            setIsAddPatientOpen(false);
+            setJustCreatedName("Patient added successfully.");
+          }}
+        />
+      </Modal>
 
       <Modal
         open={editingPatient !== null}

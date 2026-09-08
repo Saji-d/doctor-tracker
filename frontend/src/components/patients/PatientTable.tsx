@@ -52,6 +52,7 @@ export function PatientTable({
           <span className="font-medium">{p.name}</span>
         </span>
       ),
+      headerClassName: "text-center translate-x-[-33px]",
     },
     {
       key: "age",
@@ -63,6 +64,7 @@ export function PatientTable({
       key: "condition",
       header: "Condition",
       render: (p) => <Badge className={getConditionColor(p.condition).badgeClassName}>{p.condition}</Badge>,
+      className: "text-center",
     },
     {
       key: "doctor",
@@ -75,19 +77,23 @@ export function PatientTable({
         ) : (
           <span className="text-muted-foreground">—</span>
         ),
+      className: "translate-x-[40px]",
+      headerClassName: "text-center translate-x-[-7px]",
     },
     {
       key: "phone",
       header: "Phone",
       render: (p) =>
         p.phone ? (
-          <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="flex items-center justify-center gap-1.5 text-muted-foreground">
             <Phone className="size-3.5 shrink-0" />
             {p.phone}
           </span>
         ) : (
           <span className="text-muted-foreground">—</span>
         ),
+      className: "text-center",
+      headerClassName: "text-center translate-x-[5px]",
     },
     {
       key: "date",

@@ -89,6 +89,18 @@ function toDateInputValue(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+// The same day-of-month one calendar month back, not a fixed 30-day
+// subtraction — calendar months vary in length, so "30 days ago" drifts
+// away from "the same date last month" (e.g. Mar 8 - 30 days lands on
+// Feb 6, not Feb 8). When the previous month is shorter and doesn't have
+// that day (e.g. Mar 31 has no Feb 31), clamp to that month's last day.
+function sameDayPreviousMonth(date: Date): Date {
+  const firstOfPrevMonth = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+  const daysInPrevMonth = new Date(firstOfPrevMonth.getFullYear(), firstOfPrevMonth.getMonth() + 1, 0).getDate();
+  const day = Math.min(date.getDate(), daysInPrevMonth);
+  return new Date(firstOfPrevMonth.getFullYear(), firstOfPrevMonth.getMonth(), day);
+}
+
 export default function DashboardPage() {
   const [range, setRange] = useState("30d");
   const { data, isLoading, isFetching, isError, error, refetch, dataUpdatedAt } = useDashboard(range);
@@ -99,11 +111,9 @@ export default function DashboardPage() {
   // fires a second request if the user changes the chart's range control.
   const { data: last30 } = useDashboard("30d");
   const { greeting, Icon: GreetingIcon, date } = useGreeting();
-  const { thirtyDaysAgo, today } = useMemo(() => {
+  const { oneMonthAgo, today } = useMemo(() => {
     const now = new Date();
-    const from = new Date(now);
-    from.setDate(from.getDate() - 30);
-    return { thirtyDaysAgo: toDateInputValue(from), today: toDateInputValue(now) };
+    return { oneMonthAgo: toDateInputValue(sameDayPreviousMonth(now)), today: toDateInputValue(now) };
   }, []);
 
   if (isError) {
@@ -161,7 +171,9 @@ export default function DashboardPage() {
             <GreetingIcon className="size-4.5" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">{greeting}, Sajid!</h1>
+            <h1 className="text-xl font-semibold tracking-tight font-[family-name:var(--font-geist-sans)]">
+              {greeting}, Sajid!
+            </h1>
             <p className="text-sm text-muted-foreground">An overview of your doctors, patients, and recent activity.</p>
           </div>
         </div>
@@ -212,7 +224,7 @@ export default function DashboardPage() {
               icon={CalendarPlus}
               tone="warning"
               trend={trend30d}
-              href={`/patients?dateFrom=${thirtyDaysAgo}&dateTo=${today}`}
+              href={`/patients?dateFrom=${oneMonthAgo}&dateTo=${today}`}
               actionLabel="View recent patients"
             />
           </div>

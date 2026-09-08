@@ -50,6 +50,32 @@ export function useCreatePatientForDoctor(doctorId: string) {
   });
 }
 
+export interface CreatePatientWithDoctorInput {
+  name: string;
+  age: number;
+  condition: string;
+  phone?: string;
+  doctorId: string;
+}
+
+// Global create — used by the Patients page's "Add Patient" flow, where the
+// doctor is chosen in the form rather than fixed by route. Posts to the
+// top-level /patients endpoint (vs. useCreatePatientForDoctor's
+// /doctors/:id/patients) and invalidates "doctors" in addition to the usual
+// "patients"/"dashboard" keys, since doctor-list and doctor-detail views
+// both surface a per-doctor patient count that a new patient here can change.
+export function useCreatePatient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreatePatientWithDoctorInput) => apiClient.post<Patient>("/patients", input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+    },
+  });
+}
+
 export interface PatientsFilters {
   page: number;
   limit: number;

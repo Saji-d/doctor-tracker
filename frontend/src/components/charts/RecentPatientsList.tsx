@@ -24,18 +24,18 @@ export function RecentPatientsList({ patients }: RecentPatientsListProps) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <th className="pb-2 font-medium">Name</th>
+          <tr className="border-b text-center text-xs uppercase tracking-wide text-muted-foreground">
+            <th className="translate-x-[63px] pb-2 text-left font-medium">Name</th>
             <th className="pb-2 font-medium">Age</th>
             <th className="pb-2 font-medium">Condition</th>
-            <th className="pb-2 font-medium">Doctor</th>
-            <th className="pb-2 text-right font-medium">Date</th>
+            <th className="translate-x-[21px] pb-2 text-left font-medium">Doctor</th>
+            <th className="pb-2 font-medium">Date</th>
           </tr>
         </thead>
         <tbody className="divide-y">
           {patients.map((p) => (
             <tr key={p.id}>
-              <td className="py-2.5 pr-2">
+              <td className="py-2.5">
                 <span className="flex items-center gap-2.5">
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-info/10 text-[11px] font-semibold text-info">
                     {initials(p.name)}
@@ -43,8 +43,8 @@ export function RecentPatientsList({ patients }: RecentPatientsListProps) {
                   <span className="font-medium">{p.name}</span>
                 </span>
               </td>
-              <td className="py-2.5 text-muted-foreground">{p.age}</td>
-              <td className="py-2.5">
+              <td className="py-2.5 text-center text-muted-foreground">{p.age}</td>
+              <td className="py-2.5 text-center">
                 <Badge className={getConditionColor(p.condition).badgeClassName}>{p.condition}</Badge>
               </td>
               <td className="py-2.5">
@@ -52,7 +52,7 @@ export function RecentPatientsList({ patients }: RecentPatientsListProps) {
                   {p.doctorName}
                 </Link>
               </td>
-              <td className="py-2.5 text-right text-muted-foreground">{formatPatientDate(p.createdAt)}</td>
+              <td className="py-2.5 text-center text-muted-foreground">{formatPatientDate(p.createdAt)}</td>
             </tr>
           ))}
         </tbody>

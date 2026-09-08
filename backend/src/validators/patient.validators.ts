@@ -15,6 +15,16 @@ export const patientIdParamsSchema = z.object({
   params: z.object({ id: objectIdSchema }),
 });
 
+export const createPatientSchema = z.object({
+  body: z.object({
+    name: z.string().min(1, "Name is required").trim(),
+    age: z.coerce.number().int().min(0).max(150),
+    condition: z.string().min(1, "Condition is required").trim(),
+    phone: z.string().regex(phoneRegex, "Invalid phone number").optional(),
+    doctorId: objectIdSchema,
+  }),
+});
+
 export const updatePatientSchema = z.object({
   params: z.object({ id: objectIdSchema }),
   body: z
@@ -30,4 +40,5 @@ export const updatePatientSchema = z.object({
 });
 
 export type ListPatientsQuery = z.infer<typeof listPatientsQuerySchema>["query"];
+export type CreatePatientBody = z.infer<typeof createPatientSchema>["body"];
 export type UpdatePatientBody = z.infer<typeof updatePatientSchema>["body"];

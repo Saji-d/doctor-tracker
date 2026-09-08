@@ -27,6 +27,21 @@ export async function createForDoctor(doctorId: string, input: CreateForDoctorIn
   return patient.toObject();
 }
 
+interface CreateInput {
+  name: string;
+  age: number;
+  condition: string;
+  phone?: string;
+  doctorId: string;
+}
+
+export async function create(input: CreateInput) {
+  await DoctorService.getDoctorById(input.doctorId);
+
+  const patient = await Patient.create(input);
+  return patient.toObject();
+}
+
 interface ListPatientsParams {
   page: number;
   limit: number;

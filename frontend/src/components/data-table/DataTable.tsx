@@ -9,6 +9,12 @@ export interface Column<T> {
   header: string;
   render: (row: T, index: number) => ReactNode;
   className?: string;
+  // Overrides `className` for the <th> only, when a column needs its
+  // heading positioned differently from its own row data (e.g. nudging a
+  // heading toward center without moving the left-anchored content below
+  // it). Falls back to `className` so every existing column — where header
+  // and body should match — needs no change.
+  headerClassName?: string;
 }
 
 interface DataTableProps<T> {
@@ -60,7 +66,7 @@ export function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`text-left font-medium text-xs text-muted-foreground uppercase tracking-wide px-3 py-2.5 whitespace-nowrap ${col.className ?? ""}`}
+                  className={`font-medium text-xs text-muted-foreground uppercase tracking-wide px-3 py-2.5 whitespace-nowrap ${col.headerClassName ?? col.className ?? "text-left"}`}
                 >
                   {col.header}
                 </th>

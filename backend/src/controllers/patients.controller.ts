@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as PatientService from "../services/PatientService";
-import { ListPatientsQuery, UpdatePatientBody } from "../validators/patient.validators";
+import { CreatePatientBody, ListPatientsQuery, UpdatePatientBody } from "../validators/patient.validators";
 
 export async function listPatients(req: Request, res: Response, next: NextFunction) {
   try {
@@ -8,6 +8,16 @@ export async function listPatients(req: Request, res: Response, next: NextFuncti
       req.query as unknown as ListPatientsQuery;
     const result = await PatientService.listAll({ page, limit, search, condition, doctorId, dateFrom, dateTo });
     res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createPatient(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = req.body as CreatePatientBody;
+    const patient = await PatientService.create(body);
+    res.status(201).json(patient);
   } catch (err) {
     next(err);
   }

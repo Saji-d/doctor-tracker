@@ -90,14 +90,20 @@ function DoctorDetailContent() {
   const totalPatients = data?.pagination.total ?? 0;
 
   const columns: Column<Patient>[] = [
-    { key: "name", header: "Name", render: (p) => <span className="font-medium">{p.name}</span> },
+    {
+      key: "name",
+      header: "Name",
+      render: (p) => <span className="font-medium">{p.name}</span>,
+      headerClassName: "text-left translate-x-[30px]",
+    },
     { key: "age", header: "Age", render: (p) => p.age, className: "text-center" },
     {
       key: "condition",
       header: "Condition",
       render: (p) => <Badge className={getConditionColor(p.condition).badgeClassName}>{p.condition}</Badge>,
+      className: "text-center",
     },
-    { key: "phone", header: "Phone", render: (p) => p.phone ?? "—" },
+    { key: "phone", header: "Phone", render: (p) => p.phone ?? "—", className: "text-center" },
     {
       key: "actions",
       header: "Actions",
