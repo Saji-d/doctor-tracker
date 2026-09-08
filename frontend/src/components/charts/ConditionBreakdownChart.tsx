@@ -2,19 +2,13 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import type { ConditionBreakdownEntry } from "@/hooks/useDashboard";
+import { getConditionColor } from "@/lib/condition-colors";
 
 interface ConditionBreakdownChartProps {
   data: ConditionBreakdownEntry[];
   totalPatients: number;
 }
 
-// Fixed categorical order, never cycled: at most the top 5 conditions get
-// their own hue from the theme's ramp, one-to-one. Anything past that
-// (including a 6th condition the backend returns) folds into "Others"
-// alongside the true remainder, rather than reusing a hue and making two
-// slices look like the same condition.
-const CATEGORY_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
-const OTHERS_COLOR = "var(--muted-foreground)";
 const MAX_SLICES = 5;
 
 export function ConditionBreakdownChart({ data, totalPatients }: ConditionBreakdownChartProps) {
@@ -27,11 +21,11 @@ export function ConditionBreakdownChart({ data, totalPatients }: ConditionBreakd
   const others = totalPatients - shownCount;
 
   const slices = [
-    ...shown.map((entry, index) => ({
+    ...shown.map((entry) => ({
       condition: entry.condition,
       count: entry.count,
       percentage: Math.round((entry.count / totalPatients) * 100),
-      color: CATEGORY_COLORS[index],
+      color: getConditionColor(entry.condition).chart,
     })),
     ...(others > 0
       ? [
@@ -39,7 +33,7 @@ export function ConditionBreakdownChart({ data, totalPatients }: ConditionBreakd
             condition: "Others",
             count: others,
             percentage: Math.round((others / totalPatients) * 100),
-            color: OTHERS_COLOR,
+            color: getConditionColor("Others").chart,
           },
         ]
       : []),

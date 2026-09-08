@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,44 +59,41 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-// A small, self-contained illustration (no external image/asset) so the
-// sidebar's lower half doesn't read as empty space on tall viewports —
-// purely decorative, built from the theme's own tokens so it adapts to
-// dark mode automatically.
+// A small, static info card — no data fetching, purely copy — that fills
+// the gap between the nav links and the illustration so that area reads as
+// intentionally designed rather than empty. "All systems operational" here
+// is fixed branding copy, not a live status check (the Dashboard page's own
+// System Status card is what reflects real backend health).
+function SidebarWorkspaceCard() {
+  return (
+    <div className="hidden px-4 py-2 lg:block xl:px-5">
+      <div className="rounded-xl border bg-muted/30 p-3.5">
+        <p className="text-sm font-semibold">Care Workspace</p>
+        <p className="mt-1 text-xs leading-snug text-muted-foreground">
+          Keep doctor and patient records organized in one place.
+        </p>
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-success">
+          <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
+          All systems operational
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// A small illustration so the sidebar's lower half doesn't read as empty
+// space on tall viewports — purely decorative placement, real artwork.
 function SidebarIllustration() {
   return (
     <div className="hidden px-4 py-2 lg:block xl:px-5">
-      <div className="rounded-xl bg-muted/40 p-4 text-center">
-        <svg viewBox="0 0 160 140" className="mx-auto h-20 w-auto" role="img" aria-label="Illustration of a doctor">
-          <path
-            d="M32 132 C32 96 52 80 80 80 C108 80 128 96 128 132 Z"
-            fill="var(--card)"
-            stroke="var(--border)"
-            strokeWidth="2"
-          />
-          <path
-            d="M64 84 L80 104 L96 84"
-            fill="none"
-            stroke="var(--primary)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="80" cy="46" r="30" fill="var(--muted)" stroke="var(--border)" strokeWidth="2" />
-          <path
-            d="M56 88 C50 100 50 116 62 122 C72 127 82 121 80 110"
-            fill="none"
-            stroke="var(--primary)"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-          <circle cx="80" cy="111" r="5" fill="var(--primary)" />
-          <rect x="72" y="94" width="16" height="16" rx="4" fill="var(--success)" opacity="0.15" />
-          <path d="M76 102 h8 M80 98 v8" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-        <p className="mt-3 text-xs leading-snug text-muted-foreground italic">
-          &ldquo;Organized care starts with organized records.&rdquo;
-        </p>
+      <div className="rounded-xl bg-muted/40 p-3 text-center">
+        <Image
+          src="/images/sidebar-illustration.png"
+          alt="Illustration of a doctor holding a clipboard, with the caption “Healthy people build brighter tomorrows.”"
+          width={175}
+          height={203}
+          className="mx-auto h-auto w-full max-w-[170px] object-contain"
+        />
       </div>
     </div>
   );
@@ -131,6 +129,7 @@ function SidebarShell({ onNavigate, footer = true }: { onNavigate?: () => void; 
     <>
       <Brand />
       <SidebarNav onNavigate={onNavigate} />
+      <SidebarWorkspaceCard />
       <SidebarIllustration />
       {footer && <SidebarFooter />}
     </>

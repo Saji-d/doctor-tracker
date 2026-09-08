@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import Link from "next/link";
 import { useDashboard } from "@/hooks/useDashboard";
 import { ApiClientError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth";
+import { getDhakaDaypart, getDhakaGreeting, formatDhakaDate, type Daypart } from "@/lib/dhaka-time";
 import { StatCard } from "@/components/charts/StatCard";
 import { PatientsPerDoctorChart } from "@/components/charts/PatientsPerDoctorChart";
 import { DateTrendChart } from "@/components/charts/DateTrendChart";
@@ -21,6 +22,7 @@ import {
   AlertCircle,
   Sun,
   Moon,
+  Sunset,
   CloudSun,
   ClipboardList,
   RefreshCw,
@@ -35,22 +37,64 @@ const RANGE_OPTIONS = [
   { value: "90d", label: "Last 90 days" },
 ];
 
+const DAYPART_ICON: Record<Daypart, ComponentType<{ className?: string }>> = {
+  morning: Sun,
+  afternoon: CloudSun,
+  evening: Sunset,
+  night: Moon,
+};
+
+// Bangladesh time, not the visitor's (or server's) local time — see
+// lib/dhaka-time.ts. Computed in an effect, not during render, so the
+// server-rendered HTML and the client's first paint both show the same
+// neutral placeholder; the real Dhaka-based greeting/date replace it right
+// after mount, which avoids a hydration mismatch on something time-based.
 function useGreeting() {
-  return useMemo(() => {
+  const [state, setState] = useState<{ greeting: string; Icon: ComponentType<{ className?: string }>; date: string } | null>(
+    null
+  );
+
+  useEffect(() => {
     const now = new Date();
-    const hour = now.getHours();
-    const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-    const Icon = hour < 12 ? Sun : hour < 18 ? CloudSun : Moon;
-    const date = now.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    return { greeting, Icon, date };
+    // Deliberate one-time setState-on-mount, not a general pattern: a lazy
+    // useState initializer would run during SSR too and reintroduce the
+    // exact mismatch this is avoiding, since "now" genuinely differs between
+    // the server's render and the client's.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState({
+      greeting: getDhakaGreeting(now),
+      Icon: DAYPART_ICON[getDhakaDaypart(now)],
+      date: formatDhakaDate(now),
+    });
   }, []);
+
+  return {
+    greeting: state?.greeting ?? "Welcome",
+    Icon: state?.Icon ?? Sun,
+    date: state?.date ?? "",
+  };
+}
+
+function scrollToPatientsPerDoctor() {
+  document.getElementById("patients-per-doctor-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export default function DashboardPage() {
   const [range, setRange] = useState("30d");
   const { data, isLoading, isFetching, isError, error, refetch, dataUpdatedAt } = useDashboard(range);
+  // The "New Patients" KPI card is deliberately a fixed last-30-days figure,
+  // independent of the trend chart's own 7d/30d/90d selector above — when
+  // `range` is already "30d" (the default) this is the exact same cached
+  // query as `data` (same query key), so it costs nothing extra; it only
+  // fires a second request if the user changes the chart's range control.
+  const { data: last30 } = useDashboard("30d");
   const { user } = useAuth();
   const { greeting, Icon: GreetingIcon, date } = useGreeting();
+  const thirtyDaysAgo = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().slice(0, 10);
+  }, []);
 
   if (isError) {
     return (
@@ -73,27 +117,29 @@ export default function DashboardPage() {
   const totalDoctors = data?.totalDoctors ?? 0;
   const totalPatients = data?.totalPatients ?? 0;
   const avgPerDoctor = totalDoctors > 0 ? (totalPatients / totalDoctors).toFixed(1) : "0";
-  const newInRange = data?.dateTrend.reduce((sum, entry) => sum + entry.count, 0) ?? 0;
   const isEmpty = !isLoading && totalDoctors === 0 && totalPatients === 0;
-  const rangeLabel = RANGE_OPTIONS.find((o) => o.value === range)?.label.toLowerCase() ?? range;
-  const rangeDays = parseInt(range, 10) || 30;
 
   const doctorsTrend =
     data && data.newDoctorsThisMonth > 0 ? { label: `+${data.newDoctorsThisMonth} new this month` } : undefined;
   const patientsTrend =
     data && data.newPatientsThisMonth > 0 ? { label: `+${data.newPatientsThisMonth} new this month` } : undefined;
 
-  const busiestDoctor = data?.patientsPerDoctor?.[0];
-  const avgCaption = busiestDoctor ? `Busiest: ${busiestDoctor.name} (${busiestDoctor.count})` : undefined;
+  // A fixed calculation caption rather than a growth figure — this metric is
+  // a ratio, not a count, so "vs last month" would need a snapshot of a past
+  // ratio we don't keep; stating what it's computed from is honest instead.
+  const avgCaption = "Based on all registered patients";
 
-  let rangeTrend: { label: string; direction?: "up" | "down" } | undefined;
-  if (data) {
-    const prev = data.previousRangePatients;
+  // Deliberately fixed to the last 30 days regardless of the trend chart's
+  // own range selector below (see the `last30` query above).
+  const newPatients30d = last30?.dateTrend.reduce((sum, entry) => sum + entry.count, 0) ?? 0;
+  let trend30d: { label: string; direction?: "up" | "down" } | undefined;
+  if (last30) {
+    const prev = last30.previousRangePatients;
     if (prev > 0) {
-      const pct = Math.round(((newInRange - prev) / prev) * 100);
-      rangeTrend = { label: `${pct >= 0 ? "+" : ""}${pct}% vs previous ${rangeDays}d`, direction: pct >= 0 ? "up" : "down" };
-    } else if (newInRange > 0) {
-      rangeTrend = { label: "New activity this period" };
+      const pct = Math.round(((newPatients30d - prev) / prev) * 100);
+      trend30d = { label: `${pct >= 0 ? "+" : ""}${pct}% vs previous 30d`, direction: pct >= 0 ? "up" : "down" };
+    } else if (newPatients30d > 0) {
+      trend30d = { label: "New activity this period" };
     }
   }
 
@@ -130,37 +176,42 @@ export default function DashboardPage() {
               tone="primary"
               trend={doctorsTrend}
               href="/doctors"
+              actionLabel="View doctors"
             />
             <StatCard
               label="Total Patients"
               value={totalPatients}
               isLoading={isLoading}
               icon={Users}
-              tone="info"
+              tone="success"
               trend={patientsTrend}
               href="/patients"
+              actionLabel="View all patients"
             />
             <StatCard
               label="Avg Patients / Doctor"
               value={avgPerDoctor}
               isLoading={isLoading}
               icon={TrendingUp}
-              tone="success"
+              tone="purple"
               caption={avgCaption}
+              onClick={scrollToPatientsPerDoctor}
+              actionLabel="Jump to Patients per Doctor chart"
             />
             <StatCard
-              label={`New Patients (${rangeLabel})`}
-              value={newInRange}
+              label="New Patients (30d)"
+              value={newPatients30d}
               isLoading={isLoading}
               icon={CalendarPlus}
               tone="warning"
-              trend={rangeTrend}
-              href="/patients"
+              trend={trend30d}
+              href={`/patients?dateFrom=${thirtyDaysAgo}`}
+              actionLabel="View recent patients"
             />
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4">
-            <Card>
+            <Card id="patients-per-doctor-section" className="scroll-mt-20">
               <CardHeader className="flex flex-row items-start justify-between">
                 <div>
                   <CardTitle className="text-base">Patients per Doctor</CardTitle>

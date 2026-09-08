@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { RecentPatientEntry } from "@/hooks/useDashboard";
+import { getConditionColor } from "@/lib/condition-colors";
 
 interface RecentPatientsListProps {
   patients: RecentPatientEntry[];
@@ -47,7 +48,7 @@ export function RecentPatientsList({ patients }: RecentPatientsListProps) {
               </td>
               <td className="py-2.5 text-muted-foreground">{p.age}</td>
               <td className="py-2.5">
-                <Badge variant="secondary">{p.condition}</Badge>
+                <Badge className={getConditionColor(p.condition).badgeClassName}>{p.condition}</Badge>
               </td>
               <td className="py-2.5">
                 <Link href={`/doctors/${p.doctorId}`} className="text-primary hover:underline">
