@@ -94,8 +94,8 @@ describe("Doctors API", () => {
   it("includes each doctor's patient count in the list response", async () => {
     const withPatients = await createDoctor(agent, { name: "Dr. Busy" });
     const withoutPatients = await createDoctor(agent, { name: "Dr. Idle" });
-    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
-    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma", phone: "+15559876543" });
+    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma", phone: "+15559876543" });
 
     const res = await agent.get("/api/doctors");
     const byId = new Map(res.body.data.map((d: { _id: string; patientCount: number }) => [d._id, d.patientCount]));
@@ -149,7 +149,9 @@ describe("Doctors API", () => {
     const doctor = await createDoctor(agent, { name: "Dr. Update Me" });
     expect(doctor.status).toBe("active");
 
-    const res = await agent.patch(`/api/doctors/${doctor._id}`).send({ hospital: "New Hospital", status: "on-leave" });
+    const res = await agent
+      .patch(`/api/doctors/${doctor._id}`)
+      .send({ hospital: "New Hospital", status: "on-leave", phone: "+15551234567" });
     expect(res.status).toBe(200);
     expect(res.body.hospital).toBe("New Hospital");
     expect(res.body.status).toBe("on-leave");
@@ -163,7 +165,9 @@ describe("Doctors API", () => {
     const empty = await agent.patch(`/api/doctors/${doctor._id}`).send({});
     expect(empty.status).toBe(400);
 
-    const missing = await agent.patch("/api/doctors/000000000000000000000000").send({ hospital: "X" });
+    const missing = await agent
+      .patch("/api/doctors/000000000000000000000000")
+      .send({ hospital: "X", phone: "+15551234567" });
     expect(missing.status).toBe(404);
   });
 
@@ -171,7 +175,9 @@ describe("Doctors API", () => {
     await createDoctor(agent, { email: "taken@test.dev" });
     const other = await createDoctor(agent, { email: "other@test.dev" });
 
-    const res = await agent.patch(`/api/doctors/${other._id}`).send({ email: "taken@test.dev" });
+    const res = await agent
+      .patch(`/api/doctors/${other._id}`)
+      .send({ email: "taken@test.dev", phone: "+15551234567" });
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe("CONFLICT");
   });
@@ -188,7 +194,7 @@ describe("Doctors API", () => {
 
   it("409s deleting a doctor who still has patients assigned, and leaves the doctor and patient intact", async () => {
     const doctor = await createDoctor(agent);
-    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma", phone: "+15559876543" });
 
     const res = await agent.delete(`/api/doctors/${doctor._id}`);
     expect(res.status).toBe(409);
@@ -205,7 +211,7 @@ describe("Doctors API", () => {
 
     const created = await agent
       .post(`/api/doctors/${doctor._id}/patients`)
-      .send({ name: "Patient A", age: 30, condition: "Asthma" });
+      .send({ name: "Patient A", age: 30, condition: "Asthma", phone: "+15559876543" });
     expect(created.status).toBe(201);
     expect(created.body.doctorId).toBe(doctor._id);
 
@@ -218,7 +224,7 @@ describe("Doctors API", () => {
   it("404s creating a patient under a nonexistent doctor", async () => {
     const res = await agent
       .post("/api/doctors/000000000000000000000000/patients")
-      .send({ name: "X", age: 30, condition: "Asthma" });
+      .send({ name: "X", age: 30, condition: "Asthma", phone: "+15559876543" });
     expect(res.status).toBe(404);
   });
 });

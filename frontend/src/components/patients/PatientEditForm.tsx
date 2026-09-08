@@ -20,7 +20,7 @@ const patientEditSchema = z.object({
   name: z.string().min(1, "Name is required"),
   age: z.coerce.number().int().min(0, "Age must be 0 or greater").max(150, "Age must be 150 or less"),
   condition: z.string().min(1, "Condition is required"),
-  phone: z.union([z.literal(""), z.string().regex(phoneRegex, "Invalid phone number")]).optional(),
+  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Invalid phone number"),
   doctorId: z.string().min(1, "Doctor is required"),
 });
 
@@ -60,7 +60,7 @@ export function PatientEditForm({ patient, doctors, onSuccess }: PatientEditForm
     try {
       await updatePatient.mutateAsync({
         id: patient._id,
-        input: { ...values, phone: values.phone || undefined },
+        input: { ...values, phone: values.phone },
       });
       onSuccess();
     } catch (err) {
@@ -97,7 +97,7 @@ export function PatientEditForm({ patient, doctors, onSuccess }: PatientEditForm
         {errors.condition && <p className="text-sm text-destructive">{errors.condition.message}</p>}
       </div>
       <div className="space-y-1">
-        <Label htmlFor="phone">Phone (optional)</Label>
+        <Label htmlFor="phone">Phone</Label>
         <Input id="phone" placeholder="+8801712345678" aria-invalid={!!errors.phone} {...register("phone")} />
         {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
       </div>

@@ -20,7 +20,7 @@ export const createPatientSchema = z.object({
     name: z.string().min(1, "Name is required").trim(),
     age: z.coerce.number().int().min(0).max(150),
     condition: z.string().min(1, "Condition is required").trim(),
-    phone: z.string().regex(phoneRegex, "Invalid phone number").optional(),
+    phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Invalid phone number"),
     doctorId: objectIdSchema,
   }),
 });
@@ -32,10 +32,12 @@ export const updatePatientSchema = z.object({
       name: z.string().min(1, "Name is required").trim(),
       age: z.coerce.number().int().min(0).max(150),
       condition: z.string().min(1, "Condition is required").trim(),
-      phone: z.string().regex(phoneRegex, "Invalid phone number"),
       doctorId: objectIdSchema,
     })
     .partial()
+    .extend({
+      phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Invalid phone number"),
+    })
     .refine((data) => Object.keys(data).length > 0, "At least one field must be provided"),
 });
 

@@ -4,7 +4,7 @@ export interface IPatient extends Document {
   name: string;
   age: number;
   condition: string;
-  phone?: string;
+  phone: string;
   doctorId: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -15,7 +15,7 @@ const patientSchema = new Schema<IPatient>(
     name: { type: String, required: true, trim: true },
     age: { type: Number, required: true, min: 0 },
     condition: { type: String, required: true, trim: true },
-    phone: { type: String, trim: true },
+    phone: { type: String, required: true, trim: true },
     doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
   },
   { timestamps: true }

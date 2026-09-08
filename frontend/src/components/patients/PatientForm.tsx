@@ -19,7 +19,7 @@ const baseFields = {
   name: z.string().min(1, "Name is required"),
   age: z.coerce.number().int().min(0, "Age must be 0 or greater").max(150, "Age must be 150 or less"),
   condition: z.string().min(1, "Condition is required"),
-  phone: z.union([z.literal(""), z.string().regex(phoneRegex, "Invalid phone number")]).optional(),
+  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Invalid phone number"),
 };
 
 // Fixed-doctor mode (Doctor Detail page): no doctor picker, so doctorId isn't
@@ -76,12 +76,12 @@ export function PatientForm(props: PatientFormProps) {
     setServerError(null);
     try {
       if (fixedDoctorId) {
-        await createPatientForDoctor.mutateAsync({ ...values, phone: values.phone || undefined });
+        await createPatientForDoctor.mutateAsync({ ...values, phone: values.phone });
       } else {
         await createPatient.mutateAsync({
           ...values,
           doctorId: values.doctorId ?? "",
-          phone: values.phone || undefined,
+          phone: values.phone,
         });
       }
       onSuccess();
@@ -119,7 +119,7 @@ export function PatientForm(props: PatientFormProps) {
         {errors.condition && <p className="text-sm text-destructive">{errors.condition.message}</p>}
       </div>
       <div className="space-y-1">
-        <Label htmlFor="phone">Phone (optional)</Label>
+        <Label htmlFor="phone">Phone</Label>
         <Input id="phone" placeholder="+8801712345678" aria-invalid={!!errors.phone} {...register("phone")} />
         {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
       </div>

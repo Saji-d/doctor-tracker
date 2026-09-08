@@ -22,7 +22,7 @@ async function createDoctorAndPatient() {
   const doctor = await createDoctor(agent);
   const patientRes = await agent
     .post(`/api/doctors/${doctor._id}/patients`)
-    .send({ name: "Patient Z", age: 40, condition: "Migraine" });
+    .send({ name: "Patient Z", age: 40, condition: "Migraine", phone: "+15559876543" });
   return { doctorId: doctor._id, patient: patientRes.body };
 }
 
@@ -55,7 +55,7 @@ describe("Patients API", () => {
   it("lists patients globally, filterable by doctorId", async () => {
     const { doctorId } = await createDoctorAndPatient();
     const otherDoctor = await createDoctor(agent, { name: "Dr. Other", specialization: "Neurology" });
-    await agent.post(`/api/doctors/${otherDoctor._id}/patients`).send({ name: "Other Patient", age: 25, condition: "Asthma" });
+    await agent.post(`/api/doctors/${otherDoctor._id}/patients`).send({ name: "Other Patient", age: 25, condition: "Asthma", phone: "+15559876543" });
 
     const res = await agent.get(`/api/patients?doctorId=${doctorId}`);
     expect(res.body.data).toHaveLength(1);
@@ -65,7 +65,7 @@ describe("Patients API", () => {
   it("paginates the global patient list", async () => {
     const doctor = await createDoctor(agent);
     for (let i = 0; i < 3; i++) {
-      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 30, condition: "Asthma" });
+      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 30, condition: "Asthma", phone: "+15559876543" });
     }
 
     const res = await agent.get("/api/patients?page=1&limit=2");
@@ -83,6 +83,7 @@ describe("Patients API", () => {
       name: "Old Patient",
       age: 60,
       condition: "Arthritis",
+      phone: "+15559876543",
       doctorId,
       createdAt: oldDate,
       updatedAt: oldDate,
@@ -100,7 +101,9 @@ describe("Patients API", () => {
   it("updates a patient (partial update leaves other fields untouched)", async () => {
     const { patient } = await createDoctorAndPatient();
 
-    const res = await agent.patch(`/api/patients/${patient._id}`).send({ condition: "Chronic Migraine" });
+    const res = await agent
+      .patch(`/api/patients/${patient._id}`)
+      .send({ condition: "Chronic Migraine", phone: "+15559876543" });
     expect(res.status).toBe(200);
     expect(res.body.condition).toBe("Chronic Migraine");
     expect(res.body.name).toBe("Patient Z");
@@ -114,7 +117,9 @@ describe("Patients API", () => {
   });
 
   it("404s updating a nonexistent patient", async () => {
-    const res = await agent.patch("/api/patients/000000000000000000000000").send({ condition: "X" });
+    const res = await agent
+      .patch("/api/patients/000000000000000000000000")
+      .send({ condition: "X", phone: "+15559876543" });
     expect(res.status).toBe(404);
   });
 
@@ -122,14 +127,18 @@ describe("Patients API", () => {
     const { patient } = await createDoctorAndPatient();
     const newDoctor = await createDoctor(agent, { name: "Dr. New", specialization: "Neurology" });
 
-    const res = await agent.patch(`/api/patients/${patient._id}`).send({ doctorId: newDoctor._id });
+    const res = await agent
+      .patch(`/api/patients/${patient._id}`)
+      .send({ doctorId: newDoctor._id, phone: "+15559876543" });
     expect(res.status).toBe(200);
     expect(res.body.doctorId).toBe(newDoctor._id);
   });
 
   it("404s reassigning to a nonexistent doctor", async () => {
     const { patient } = await createDoctorAndPatient();
-    const res = await agent.patch(`/api/patients/${patient._id}`).send({ doctorId: "000000000000000000000000" });
+    const res = await agent
+      .patch(`/api/patients/${patient._id}`)
+      .send({ doctorId: "000000000000000000000000", phone: "+15559876543" });
     expect(res.status).toBe(404);
   });
 

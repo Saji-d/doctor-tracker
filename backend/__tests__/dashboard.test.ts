@@ -29,7 +29,7 @@ describe("Dashboard API", () => {
     const doctor = await createDoctor(agent);
 
     // One patient created "now" — falls inside every range.
-    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "Recent", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "Recent", age: 20, condition: "Asthma", phone: "+15559876543" });
 
     // One patient backdated 60 days — falls outside a 7-day range but must
     // still count toward totals and patientsPerDoctor, which are supposed
@@ -39,6 +39,7 @@ describe("Dashboard API", () => {
       name: "Old",
       age: 50,
       condition: "Migraine",
+      phone: "+15559876543",
       doctorId: doctor._id,
       createdAt: oldDate,
       updatedAt: oldDate,
@@ -65,9 +66,9 @@ describe("Dashboard API", () => {
     const docA = await createDoctor(agent, { name: "Dr. A" });
     const docB = await createDoctor(agent, { name: "Dr. B" });
 
-    await agent.post(`/api/doctors/${docA._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
-    await agent.post(`/api/doctors/${docB._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma" });
-    await agent.post(`/api/doctors/${docB._id}/patients`).send({ name: "P3", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${docA._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma", phone: "+15559876543" });
+    await agent.post(`/api/doctors/${docB._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma", phone: "+15559876543" });
+    await agent.post(`/api/doctors/${docB._id}/patients`).send({ name: "P3", age: 20, condition: "Asthma", phone: "+15559876543" });
 
     const res = await agent.get("/api/dashboard/summary");
     expect(res.body.patientsPerDoctor[0]).toMatchObject({ name: "Dr. B", count: 2 });
@@ -76,9 +77,9 @@ describe("Dashboard API", () => {
 
   it("breaks patients down by condition, descending by count", async () => {
     const doctor = await createDoctor(agent);
-    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
-    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma" });
-    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P3", age: 20, condition: "Migraine" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma", phone: "+15559876543" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma", phone: "+15559876543" });
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P3", age: 20, condition: "Migraine", phone: "+15559876543" });
 
     const res = await agent.get("/api/dashboard/summary");
     expect(res.body.conditionBreakdown[0]).toMatchObject({ condition: "Asthma", count: 2 });
@@ -116,6 +117,7 @@ describe("Dashboard API", () => {
       name: "Old Patient",
       age: 40,
       condition: "Asthma",
+      phone: "+15559876543",
       doctorId: oldDoctor._id,
       createdAt: lastMonth,
       updatedAt: lastMonth,
@@ -124,6 +126,7 @@ describe("Dashboard API", () => {
       name: "New Patient",
       age: 30,
       condition: "Migraine",
+      phone: "+15559876543",
       doctorId: newDoctor._id,
       createdAt: now,
       updatedAt: now,
@@ -148,6 +151,7 @@ describe("Dashboard API", () => {
       name: "P1",
       age: 20,
       condition: "Asthma",
+      phone: "+15559876543",
       doctorId: doctor._id,
       createdAt: inPrevious,
       updatedAt: inPrevious,
@@ -156,6 +160,7 @@ describe("Dashboard API", () => {
       name: "P2",
       age: 20,
       condition: "Asthma",
+      phone: "+15559876543",
       doctorId: doctor._id,
       createdAt: inCurrent,
       updatedAt: inCurrent,
@@ -164,6 +169,7 @@ describe("Dashboard API", () => {
       name: "P3",
       age: 20,
       condition: "Asthma",
+      phone: "+15559876543",
       doctorId: doctor._id,
       createdAt: tooOld,
       updatedAt: tooOld,
@@ -178,7 +184,7 @@ describe("Dashboard API", () => {
   it("returns the 5 most recently created patients with their doctor's name and id", async () => {
     const doctor = await createDoctor(agent, { name: "Dr. Recent" });
     for (let i = 0; i < 6; i++) {
-      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 20, condition: "Asthma" });
+      await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: `Patient ${i}`, age: 20, condition: "Asthma", phone: "+15559876543" });
     }
 
     const res = await agent.get("/api/dashboard/summary");

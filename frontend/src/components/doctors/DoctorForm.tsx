@@ -18,7 +18,7 @@ const doctorSchema = z.object({
   name: z.string().min(1, "Name is required"),
   specialization: z.string().min(1, "Specialization is required"),
   hospital: z.string().min(1, "Hospital is required"),
-  phone: z.string().regex(phoneRegex, "Invalid phone number"),
+  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Invalid phone number"),
   email: z.string().email("Invalid email address"),
 });
 
