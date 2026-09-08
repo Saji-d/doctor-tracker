@@ -203,8 +203,6 @@ function DoctorsPageContent() {
 
       <DoctorTable
         doctors={data?.data ?? []}
-        page={page}
-        limit={LIMIT}
         isLoading={isLoading}
         isError={isError}
         errorMessage={error instanceof ApiClientError ? error.message : undefined}

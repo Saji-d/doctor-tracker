@@ -90,13 +90,8 @@ function DoctorDetailContent() {
   const totalPatients = data?.pagination.total ?? 0;
 
   const columns: Column<Patient>[] = [
-    {
-      key: "index",
-      header: "#",
-      render: (_p, index) => <span className="text-muted-foreground">{(page - 1) * LIMIT + index + 1}</span>,
-    },
     { key: "name", header: "Name", render: (p) => <span className="font-medium">{p.name}</span> },
-    { key: "age", header: "Age", render: (p) => p.age },
+    { key: "age", header: "Age", render: (p) => p.age, className: "text-center" },
     {
       key: "condition",
       header: "Condition",
@@ -122,7 +117,7 @@ function DoctorDetailContent() {
           </Button>
         </div>
       ),
-      className: "text-left",
+      className: "text-center",
     },
   ];
 

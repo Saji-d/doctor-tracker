@@ -11,10 +11,6 @@ import type { Doctor } from "@/hooks/useDoctors";
 
 interface DoctorTableProps {
   doctors: Doctor[];
-  // Used only to compute each row's overall position (e.g. page 2 shows
-  // 11, 12, ...) rather than resetting to 1 on every page.
-  page: number;
-  limit: number;
   isLoading: boolean;
   isError: boolean;
   errorMessage?: string;
@@ -32,8 +28,6 @@ function initials(name: string): string {
 
 export function DoctorTable({
   doctors,
-  page,
-  limit,
   isLoading,
   isError,
   errorMessage,
@@ -44,11 +38,6 @@ export function DoctorTable({
   footer,
 }: DoctorTableProps) {
   const columns: Column<Doctor>[] = [
-    {
-      key: "index",
-      header: "#",
-      render: (_d, index) => <span className="text-muted-foreground">{(page - 1) * limit + index + 1}</span>,
-    },
     {
       key: "name",
       header: "Name",
@@ -109,11 +98,12 @@ export function DoctorTable({
       key: "patients",
       header: "Patients",
       render: (d) => (
-        <span className="flex items-center gap-1.5 text-muted-foreground">
+        <span className="flex items-center justify-center gap-1.5 text-muted-foreground">
           <Users className="size-3.5 shrink-0" />
           {d.patientCount ?? 0}
         </span>
       ),
+      className: "text-center",
     },
     {
       key: "status",
@@ -142,6 +132,7 @@ export function DoctorTable({
           </Badge>
         );
       },
+      className: "text-center",
     },
     {
       key: "actions",
@@ -162,7 +153,7 @@ export function DoctorTable({
           </Button>
         </div>
       ),
-      className: "text-left",
+      className: "text-center",
     },
   ];
 

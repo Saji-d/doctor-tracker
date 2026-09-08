@@ -13,11 +13,6 @@ import type { Patient } from "@/hooks/usePatients";
 interface PatientTableProps {
   patients: Patient[];
   doctorNameById: Map<string, string>;
-  // Used only to compute each row's overall position (e.g. page 2 shows
-  // 11, 12, ...) rather than resetting to 1 on every page — same pattern as
-  // DoctorTable's index column.
-  page: number;
-  limit: number;
   isLoading: boolean;
   isError: boolean;
   errorMessage?: string;
@@ -36,8 +31,6 @@ function initials(name: string): string {
 export function PatientTable({
   patients,
   doctorNameById,
-  page,
-  limit,
   isLoading,
   isError,
   errorMessage,
@@ -48,11 +41,6 @@ export function PatientTable({
   footer,
 }: PatientTableProps) {
   const columns: Column<Patient>[] = [
-    {
-      key: "index",
-      header: "#",
-      render: (_p, index) => <span className="text-muted-foreground">{(page - 1) * limit + index + 1}</span>,
-    },
     {
       key: "name",
       header: "Name",
@@ -65,7 +53,12 @@ export function PatientTable({
         </span>
       ),
     },
-    { key: "age", header: "Age", render: (p) => <span className="text-muted-foreground">{p.age}</span> },
+    {
+      key: "age",
+      header: "Age",
+      render: (p) => <span className="text-muted-foreground">{p.age}</span>,
+      className: "text-center",
+    },
     {
       key: "condition",
       header: "Condition",
@@ -100,6 +93,7 @@ export function PatientTable({
       key: "date",
       header: "Date",
       render: (p) => <span className="text-muted-foreground">{formatPatientDate(p.createdAt)}</span>,
+      className: "text-center",
     },
     {
       key: "actions",
@@ -120,7 +114,7 @@ export function PatientTable({
           </Button>
         </div>
       ),
-      className: "text-left",
+      className: "text-center",
     },
   ];
 
