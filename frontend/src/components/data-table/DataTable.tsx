@@ -60,7 +60,7 @@ export function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`text-left font-medium text-xs text-muted-foreground uppercase tracking-wide px-4 py-2.5 whitespace-nowrap ${col.className ?? ""}`}
+                  className={`text-center font-medium text-xs text-muted-foreground uppercase tracking-wide px-3 py-2.5 whitespace-nowrap ${col.className ?? ""}`}
                 >
                   {col.header}
                 </th>
@@ -72,7 +72,7 @@ export function DataTable<T>({
               Array.from({ length: skeletonRows }).map((_, i) => (
                 <tr key={i} className="border-b last:border-0">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3">
+                    <td key={col.key} className="px-3 py-3">
                       <Skeleton className="h-4 w-3/4" />
                     </td>
                   ))}
@@ -80,7 +80,7 @@ export function DataTable<T>({
               ))
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-10">
+                <td colSpan={columns.length} className="px-3 py-10">
                   {emptyState ?? <p className="text-center text-sm text-muted-foreground">No results</p>}
                 </td>
               </tr>
@@ -88,7 +88,7 @@ export function DataTable<T>({
               rows.map((row, index) => (
                 <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                   {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-3 whitespace-nowrap ${col.className ?? ""}`}>
+                    <td key={col.key} className={`px-3 py-3 whitespace-nowrap ${col.className ?? ""}`}>
                       {col.render(row, index)}
                     </td>
                   ))}

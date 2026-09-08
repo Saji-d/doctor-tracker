@@ -166,7 +166,7 @@ function DoctorsPageContent() {
           value={specialization || "all"}
           onValueChange={(v) => updateParams({ specialization: v === "all" ? null : v })}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="flex-1 min-w-[160px]">
             <SelectValue placeholder="Specialization">
               {(v: string) => (v === "all" ? "All specializations" : v)}
             </SelectValue>
@@ -181,7 +181,7 @@ function DoctorsPageContent() {
           </SelectContent>
         </Select>
         <Select value={hospital || "all"} onValueChange={(v) => updateParams({ hospital: v === "all" ? null : v })}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="flex-1 min-w-[160px]">
             <SelectValue placeholder="Hospital">{(v: string) => (v === "all" ? "All hospitals" : v)}</SelectValue>
           </SelectTrigger>
           <SelectContent>

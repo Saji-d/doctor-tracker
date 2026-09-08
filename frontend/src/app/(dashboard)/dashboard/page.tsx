@@ -222,7 +222,7 @@ export default function DashboardPage() {
               <CardHeader className="flex flex-row items-start justify-between">
                 <div>
                   <CardTitle className="text-base">Patients per Doctor</CardTitle>
-                  <CardDescription>Top 5 doctors by active patient count</CardDescription>
+                  <CardDescription>Top 7 doctors by patient count</CardDescription>
                 </div>
                 <Link href="/doctors" className="text-sm font-medium text-primary hover:underline shrink-0">
                   View All

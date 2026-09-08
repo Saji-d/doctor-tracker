@@ -18,6 +18,7 @@ const phoneRegex = /^\+?[0-9\s]{7,15}$/;
 const STATUS_OPTIONS: { value: DoctorStatus; label: string }[] = [
   { value: "active", label: "Active" },
   { value: "on-leave", label: "On Leave" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 const doctorEditSchema = z.object({
@@ -26,7 +27,7 @@ const doctorEditSchema = z.object({
   hospital: z.string().min(1, "Hospital is required"),
   phone: z.string().regex(phoneRegex, "Invalid phone number"),
   email: z.string().email("Invalid email address"),
-  status: z.enum(["active", "on-leave"]),
+  status: z.enum(["active", "on-leave", "inactive"]),
 });
 
 type DoctorEditFormValues = z.infer<typeof doctorEditSchema>;

@@ -15,7 +15,7 @@ import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CONDITIONS } from "@/lib/constants";
-import { Users } from "lucide-react";
+import { Users, Stethoscope, UserRound } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -96,7 +96,8 @@ function PatientsPageContent() {
           placeholder="Search name, condition..."
         />
         <Select value={condition || "all"} onValueChange={(v) => updateParams({ condition: v === "all" ? null : v })}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="flex-1 min-w-[160px]">
+            <Stethoscope className="size-4 text-muted-foreground" />
             <SelectValue placeholder="Condition">
               {(v: string) => (v === "all" ? "All conditions" : v)}
             </SelectValue>
@@ -111,7 +112,8 @@ function PatientsPageContent() {
           </SelectContent>
         </Select>
         <Select value={doctorId || "all"} onValueChange={(v) => updateParams({ doctorId: v === "all" ? null : v })}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="flex-1 min-w-[160px]">
+            <UserRound className="size-4 text-muted-foreground" />
             <SelectValue placeholder="Doctor">
               {(v: string) => (v === "all" ? "All doctors" : (doctorNameById.get(v) ?? v))}
             </SelectValue>
@@ -136,6 +138,8 @@ function PatientsPageContent() {
       <PatientTable
         patients={data?.data ?? []}
         doctorNameById={doctorNameById}
+        page={page}
+        limit={LIMIT}
         isLoading={isLoading}
         isError={isError}
         errorMessage={error instanceof ApiClientError ? error.message : undefined}

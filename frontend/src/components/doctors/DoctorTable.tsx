@@ -79,9 +79,9 @@ export function DoctorTable({
       key: "hospital",
       header: "Hospital",
       render: (d) => (
-        <span className="flex items-center gap-1.5 text-muted-foreground">
+        <span className="flex max-w-[220px] items-center gap-1.5 text-muted-foreground" title={d.hospital}>
           <Building2 className="size-3.5 shrink-0" />
-          {d.hospital}
+          <span className="min-w-0 truncate">{d.hospital}</span>
         </span>
       ),
     },
@@ -99,9 +99,9 @@ export function DoctorTable({
       key: "email",
       header: "Email",
       render: (d) => (
-        <span className="flex items-center gap-1.5 text-muted-foreground">
+        <span className="flex max-w-[150px] items-center gap-1.5 text-muted-foreground" title={d.email}>
           <Mail className="size-3.5 shrink-0" />
-          {d.email}
+          <span className="min-w-0 truncate">{d.email}</span>
         </span>
       ),
     },
@@ -118,24 +118,36 @@ export function DoctorTable({
     {
       key: "status",
       header: "Status",
-      render: (d) =>
-        d.status === "active" ? (
-          <Badge className="gap-1.5 border-success/25 bg-success/10 text-success">
-            <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-            Active
-          </Badge>
-        ) : (
+      render: (d) => {
+        if (d.status === "active") {
+          return (
+            <Badge className="gap-1.5 border-success/25 bg-success/10 text-success">
+              <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
+              Active
+            </Badge>
+          );
+        }
+        if (d.status === "inactive") {
+          return (
+            <Badge className="gap-1.5 border-destructive/25 bg-destructive/10 text-destructive">
+              <span className="size-1.5 rounded-full bg-destructive" aria-hidden="true" />
+              Inactive
+            </Badge>
+          );
+        }
+        return (
           <Badge className="gap-1.5 border-warning/25 bg-warning/10 text-warning">
             <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
             On Leave
           </Badge>
-        ),
+        );
+      },
     },
     {
       key: "actions",
-      header: "",
+      header: "Actions",
       render: (d) => (
-        <div className="flex justify-end gap-1">
+        <div className="flex justify-center gap-1">
           <Button variant="ghost" size="icon-sm" aria-label={`Edit ${d.name}`} onClick={() => onEdit(d)}>
             <Pencil className="size-3.5" />
           </Button>
@@ -150,7 +162,7 @@ export function DoctorTable({
           </Button>
         </div>
       ),
-      className: "text-right",
+      className: "text-center",
     },
   ];
 

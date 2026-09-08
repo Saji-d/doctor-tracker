@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 
-export type DoctorStatus = "active" | "on-leave";
+export type DoctorStatus = "active" | "on-leave" | "inactive";
 
 export interface IDoctor extends Document {
   name: string;
@@ -22,9 +22,9 @@ const doctorSchema = new Schema<IDoctor>(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     // Deliberately minimal: just enough to answer "is this doctor currently
     // practicing" for the summary card and table badge — not a scheduling or
-    // HR system. Every doctor starts active; nothing sets it to "on-leave"
-    // automatically, it's an admin-editable field via PATCH.
-    status: { type: String, enum: ["active", "on-leave"], default: "active" },
+    // HR system. Every doctor starts active; nothing sets it to "on-leave" or
+    // "inactive" automatically, it's an admin-editable field via PATCH.
+    status: { type: String, enum: ["active", "on-leave", "inactive"], default: "active" },
   },
   { timestamps: true }
 );

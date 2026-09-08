@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 
-export type DoctorStatus = "active" | "on-leave";
+export type DoctorStatus = "active" | "on-leave" | "inactive";
 
 export interface Doctor {
   _id: string;

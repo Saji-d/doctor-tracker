@@ -34,7 +34,7 @@ export const updateDoctorSchema = z.object({
       hospital: z.string().min(1, "Hospital is required").trim(),
       phone: z.string().regex(phoneRegex, "Invalid phone number"),
       email: z.string().email("Invalid email address"),
-      status: z.enum(["active", "on-leave"]),
+      status: z.enum(["active", "on-leave", "inactive"]),
     })
     .partial()
     .refine((data) => Object.keys(data).length > 0, "At least one field must be provided"),

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface SearchInputProps {
@@ -32,11 +33,14 @@ export function SearchInput({ value, onChange, placeholder }: SearchInputProps) 
   }, [local]);
 
   return (
-    <Input
-      value={local}
-      onChange={(e) => setLocal(e.target.value)}
-      placeholder={placeholder ?? "Search..."}
-      className="max-w-xs"
-    />
+    <div className="relative flex-1 min-w-[200px]">
+      <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={local}
+        onChange={(e) => setLocal(e.target.value)}
+        placeholder={placeholder ?? "Search..."}
+        className="pl-8"
+      />
+    </div>
   );
 }

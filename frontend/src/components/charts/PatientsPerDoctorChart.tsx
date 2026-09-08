@@ -11,9 +11,9 @@ interface PatientsPerDoctorChartProps {
 const BAR_COLOR = "var(--chart-1)";
 
 // Backend returns up to 10, already sorted descending by count; showing only
-// the top 5 here is a frontend-only trim, not a re-sort — the ranking is
+// the top 7 here is a frontend-only trim, not a re-sort — the ranking is
 // already correct coming in.
-const MAX_DOCTORS = 5;
+const MAX_DOCTORS = 7;
 
 export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
   if (data.length === 0) {
@@ -23,14 +23,14 @@ export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
   const shown = data.slice(0, MAX_DOCTORS);
 
   return (
-    <ResponsiveContainer width="100%" height={190}>
+    <ResponsiveContainer width="100%" height={240}>
       <BarChart data={shown} layout="vertical" margin={{ left: 8, right: 16 }}>
         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
         <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
         <YAxis
           type="category"
           dataKey="name"
-          width={140}
+          width={170}
           tick={{ fontSize: 12 }}
           stroke="var(--muted-foreground)"
           // Recharts auto-skips category ticks it thinks won't fit; with 10

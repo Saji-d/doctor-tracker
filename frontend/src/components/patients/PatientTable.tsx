@@ -13,6 +13,11 @@ import type { Patient } from "@/hooks/usePatients";
 interface PatientTableProps {
   patients: Patient[];
   doctorNameById: Map<string, string>;
+  // Used only to compute each row's overall position (e.g. page 2 shows
+  // 11, 12, ...) rather than resetting to 1 on every page — same pattern as
+  // DoctorTable's index column.
+  page: number;
+  limit: number;
   isLoading: boolean;
   isError: boolean;
   errorMessage?: string;
@@ -31,6 +36,8 @@ function initials(name: string): string {
 export function PatientTable({
   patients,
   doctorNameById,
+  page,
+  limit,
   isLoading,
   isError,
   errorMessage,
@@ -41,6 +48,11 @@ export function PatientTable({
   footer,
 }: PatientTableProps) {
   const columns: Column<Patient>[] = [
+    {
+      key: "index",
+      header: "#",
+      render: (_p, index) => <span className="text-muted-foreground">{(page - 1) * limit + index + 1}</span>,
+    },
     {
       key: "name",
       header: "Name",
@@ -91,9 +103,9 @@ export function PatientTable({
     },
     {
       key: "actions",
-      header: "",
+      header: "Actions",
       render: (p) => (
-        <div className="flex justify-end gap-1">
+        <div className="flex justify-center gap-1">
           <Button variant="ghost" size="icon-sm" aria-label={`Edit ${p.name}`} onClick={() => onEdit(p)}>
             <Pencil className="size-3.5" />
           </Button>
@@ -108,7 +120,7 @@ export function PatientTable({
           </Button>
         </div>
       ),
-      className: "text-right",
+      className: "text-center",
     },
   ];
 
