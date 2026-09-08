@@ -35,7 +35,7 @@ function Brand() {
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav className="flex-1 space-y-1 px-3">
+    <nav className="space-y-1 px-3">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname.startsWith(item.href);
         const Icon = item.icon;
@@ -59,33 +59,14 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-// A small, static info card — no data fetching, purely copy — that fills
-// the gap between the nav links and the illustration so that area reads as
-// intentionally designed rather than empty. "All systems operational" here
-// is fixed branding copy, not a live status check (the Dashboard page's own
-// System Status card is what reflects real backend health).
-function SidebarWorkspaceCard() {
-  return (
-    <div className="hidden px-4 py-2 lg:block xl:px-5">
-      <div className="rounded-xl border bg-muted/30 p-3.5">
-        <p className="text-sm font-semibold">Care Workspace</p>
-        <p className="mt-1 text-xs leading-snug text-muted-foreground">
-          Keep doctor and patient records organized in one place.
-        </p>
-        <div className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-success">
-          <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
-          All systems operational
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // A small illustration so the sidebar's lower half doesn't read as empty
 // space on tall viewports — purely decorative placement, real artwork.
+// Centered (via the flex-1 wrapper in SidebarShell) in whatever space is
+// left between the nav links and the footer, rather than pinned to the
+// bottom, so it reads as sitting in the middle of the sidebar.
 function SidebarIllustration() {
   return (
-    <div className="hidden px-4 py-2 lg:block xl:px-5">
+    <div className="px-4 xl:px-5">
       <div className="rounded-xl bg-muted/40 p-3 text-center">
         <Image
           src="/images/sidebar-illustration.png"
@@ -129,8 +110,9 @@ function SidebarShell({ onNavigate, footer = true }: { onNavigate?: () => void; 
     <>
       <Brand />
       <SidebarNav onNavigate={onNavigate} />
-      <SidebarWorkspaceCard />
-      <SidebarIllustration />
+      <div className="hidden flex-1 lg:flex lg:items-center lg:justify-center">
+        <SidebarIllustration />
+      </div>
       {footer && <SidebarFooter />}
     </>
   );

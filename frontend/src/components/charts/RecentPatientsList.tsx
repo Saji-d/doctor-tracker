@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { RecentPatientEntry } from "@/hooks/useDashboard";
 import { getConditionColor } from "@/lib/condition-colors";
+import { formatPatientDate } from "@/lib/format-date";
 
 interface RecentPatientsListProps {
   patients: RecentPatientEntry[];
@@ -12,10 +13,6 @@ interface RecentPatientsListProps {
 function initials(name: string): string {
   const parts = name.split(" ").filter(Boolean);
   return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 export function RecentPatientsList({ patients }: RecentPatientsListProps) {
@@ -55,7 +52,7 @@ export function RecentPatientsList({ patients }: RecentPatientsListProps) {
                   {p.doctorName}
                 </Link>
               </td>
-              <td className="py-2.5 text-right text-muted-foreground">{formatDate(p.createdAt)}</td>
+              <td className="py-2.5 text-right text-muted-foreground">{formatPatientDate(p.createdAt)}</td>
             </tr>
           ))}
         </tbody>

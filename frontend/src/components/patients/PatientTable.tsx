@@ -6,6 +6,7 @@ import { Pencil, Trash2, Phone } from "lucide-react";
 import { DataTable, Column } from "@/components/data-table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatPatientDate } from "@/lib/format-date";
 import type { Patient } from "@/hooks/usePatients";
 
 interface PatientTableProps {
@@ -77,6 +78,11 @@ export function PatientTable({
         ) : (
           <span className="text-muted-foreground">—</span>
         ),
+    },
+    {
+      key: "date",
+      header: "Date",
+      render: (p) => <span className="text-muted-foreground">{formatPatientDate(p.createdAt)}</span>,
     },
     {
       key: "actions",

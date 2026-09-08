@@ -26,6 +26,11 @@ export function PatientsPerDoctorChart({ data }: PatientsPerDoctorChartProps) {
           width={140}
           tick={{ fontSize: 12 }}
           stroke="var(--muted-foreground)"
+          // Recharts auto-skips category ticks it thinks won't fit; with 10
+          // doctors that silently hid every other label. interval={0} forces
+          // every tick to render — at this chart's height each row still has
+          // enough vertical room per label, so nothing overlaps.
+          interval={0}
         />
         <Tooltip
           cursor={{ fill: "var(--muted)" }}

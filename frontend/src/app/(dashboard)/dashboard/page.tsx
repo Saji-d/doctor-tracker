@@ -79,6 +79,17 @@ function scrollToPatientsPerDoctor() {
   document.getElementById("patients-per-doctor-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// Formats a Date using its LOCAL calendar fields (not toISOString, which
+// converts to UTC first and can land on the wrong day depending on the
+// visitor's UTC offset and time of day) — this is what the Patients page's
+// native <input type="date"> fields expect and display.
+function toDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function DashboardPage() {
   const [range, setRange] = useState("30d");
   const { data, isLoading, isFetching, isError, error, refetch, dataUpdatedAt } = useDashboard(range);
@@ -90,10 +101,11 @@ export default function DashboardPage() {
   const { data: last30 } = useDashboard("30d");
   const { user } = useAuth();
   const { greeting, Icon: GreetingIcon, date } = useGreeting();
-  const thirtyDaysAgo = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    return d.toISOString().slice(0, 10);
+  const { thirtyDaysAgo, today } = useMemo(() => {
+    const now = new Date();
+    const from = new Date(now);
+    from.setDate(from.getDate() - 30);
+    return { thirtyDaysAgo: toDateInputValue(from), today: toDateInputValue(now) };
   }, []);
 
   if (isError) {
@@ -205,7 +217,7 @@ export default function DashboardPage() {
               icon={CalendarPlus}
               tone="warning"
               trend={trend30d}
-              href={`/patients?dateFrom=${thirtyDaysAgo}`}
+              href={`/patients?dateFrom=${thirtyDaysAgo}&dateTo=${today}`}
               actionLabel="View recent patients"
             />
           </div>

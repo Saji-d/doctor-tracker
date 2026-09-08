@@ -9,7 +9,11 @@ interface ConditionBreakdownChartProps {
   totalPatients: number;
 }
 
-const MAX_SLICES = 5;
+// Matches the backend's own top-N cap (DashboardService limits
+// conditionBreakdown to 6) and the 6 fixed colors in condition-colors.ts, so
+// every condition the backend actually returns gets its own named slice
+// instead of a 6th one being folded into "Others" for no real reason.
+const MAX_SLICES = 6;
 
 export function ConditionBreakdownChart({ data, totalPatients }: ConditionBreakdownChartProps) {
   if (data.length === 0 || totalPatients === 0) {
