@@ -10,7 +10,7 @@
 
 ## Description
 
-Doctor Tracker is a secure admin console for a hospital's front desk: log in, see a live dashboard of doctors and patients, and manage both from clean, searchable, paginated tables. A public landing page introduces the product before authentication — nav, hero, a feature showcase, and an analytics preview, all built from the app's real functionality rather than invented stats or testimonials — then hands off to login. It's the client half of a two-app system — a Next.js single-page-feeling app that never touches the database or a password hash directly, and instead does everything over REST against the standalone [Express API](../backend/README.md). The build leans on Next.js's App Router for routing and layout composition, TanStack Query for every piece of server state (so loading/error/caching are solved once, not per-page), and shadcn/ui + Tailwind for a UI that's meant to look like a real internal tool rather than a CRUD scaffold — clean spacing, skeleton loading states, real empty/error states, a consistent primary/info/success/warning color system, and a dashboard with genuinely readable charts. Demo data (doctors, patients, hospitals) uses realistic Bangladeshi names, reflecting the region the product is modeled for.
+Doctor Tracker is a secure admin console for a hospital's front desk: log in, see a live dashboard of doctors and patients, and manage both from clean, searchable, paginated tables. A public landing page introduces the product before authentication — a responsive nav with a mobile menu, a hero with the real dashboard screenshot, a capability strip, six feature cards, an architecture/engineering section, and a five-step "how it works" flow — all built from the app's real functionality rather than invented stats or testimonials — then hands off to login. It's the client half of a two-app system — a Next.js single-page-feeling app that never touches the database or a password hash directly, and instead does everything over REST against the standalone [Express API](../backend/README.md). The build leans on Next.js's App Router for routing and layout composition, TanStack Query for every piece of server state (so loading/error/caching are solved once, not per-page), and shadcn/ui + Tailwind for a UI that's meant to look like a real internal tool rather than a CRUD scaffold — clean spacing, skeleton loading states, real empty/error states, a consistent primary/info/success/warning color system, and a dashboard with genuinely readable charts. Demo data (doctors, patients, hospitals) uses realistic Bangladeshi names, reflecting the region the product is modeled for.
 
 Signing up is intentionally not part of this app. The original spec calls for secure login and protected routes, not public self-registration — the seeded admin account is the only way in, by design, not an oversight.
 
@@ -68,7 +68,7 @@ Almost everything this app renders is server state: doctors, patients, dashboard
 
 ## Visual Evidence
 
-**Landing** — the public page every visitor sees before signing in; nav, hero, feature showcase, and an analytics preview, no protected data exposed
+**Landing** — the public page every visitor sees before signing in; responsive nav, hero with the real dashboard preview, a capability strip, feature cards, an architecture section, and a how-it-works flow — no protected data exposed
 
 ![Landing page](../docs/screenshots/landing.jpg)
 
@@ -92,7 +92,22 @@ Almost everything this app renders is server state: doctors, patients, dashboard
 
 ![Patients list](../docs/screenshots/patients.jpg)
 
-> **Mobile screenshots:** the sandboxed browser tool used to build this project can't actually resize its rendered viewport (confirmed via `window.innerWidth` staying fixed regardless of the resize call), so genuine phone-width screenshots couldn't be captured here. Responsive behavior was instead verified by code review and one real bug found and fixed that way: the nav bar overflowed horizontally below ~500px (fixed with `flex-wrap` + responsive padding — `frontend/src/components/layout/NavBar.tsx`), and the data table (`overflow-x-auto`) and filter bar (`flex-wrap`) were already correctly responsive from when they were built. If you have a moment, resizing your own browser window below ~500px on any page here is the quickest way to confirm it directly.
+**Mobile** — a real 390×844 layout viewport, achieved by embedding the app in a sized `<iframe>` (the browser tool's own window-resize call doesn't affect its rendered viewport — confirmed via `window.innerWidth` staying fixed regardless — but a same-origin iframe gets its own independent `contentWindow`, which does respect the size it's given). Verified directly, not assumed: `document.documentElement.scrollWidth === clientWidth` on every page below (zero horizontal overflow), and the nav's hamburger menu opens and closes correctly.
+
+<table>
+<tr>
+<td><img src="../docs/screenshots/mobile-landing.png" alt="Landing page on mobile" width="200"></td>
+<td><img src="../docs/screenshots/mobile-login.png" alt="Login page on mobile" width="200"></td>
+<td><img src="../docs/screenshots/mobile-dashboard.png" alt="Dashboard on mobile" width="200"></td>
+</tr>
+<tr>
+<td><img src="../docs/screenshots/mobile-doctors.png" alt="Doctors list on mobile" width="200"></td>
+<td><img src="../docs/screenshots/mobile-doctor-detail.png" alt="Doctor detail on mobile" width="200"></td>
+<td><img src="../docs/screenshots/mobile-patients.png" alt="Patients list on mobile" width="200"></td>
+</tr>
+</table>
+
+On the patients table specifically, the table itself scrolls horizontally inside its own `overflow-x-auto` container rather than the page — confirmed the same way (page-level `scrollWidth` stays at the viewport width even though the table's columns are wider).
 
 ## Project Links
 
