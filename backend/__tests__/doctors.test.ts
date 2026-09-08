@@ -82,6 +82,27 @@ describe("Doctors API", () => {
     expect(bySearch.body.data[0].name).toBe("Dr. Derma");
   });
 
+  it("filters by hospital", async () => {
+    await createDoctor(agent, { name: "Dr. Square", hospital: "Square Hospital" });
+    await createDoctor(agent, { name: "Dr. Ibn Sina", hospital: "Ibn Sina Medical Center" });
+
+    const res = await agent.get(`/api/doctors?hospital=${encodeURIComponent("Square Hospital")}`);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].name).toBe("Dr. Square");
+  });
+
+  it("includes each doctor's patient count in the list response", async () => {
+    const withPatients = await createDoctor(agent, { name: "Dr. Busy" });
+    const withoutPatients = await createDoctor(agent, { name: "Dr. Idle" });
+    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
+    await agent.post(`/api/doctors/${withPatients._id}/patients`).send({ name: "P2", age: 20, condition: "Asthma" });
+
+    const res = await agent.get("/api/doctors");
+    const byId = new Map(res.body.data.map((d: { _id: string; patientCount: number }) => [d._id, d.patientCount]));
+    expect(byId.get(withPatients._id)).toBe(2);
+    expect(byId.get(withoutPatients._id)).toBe(0);
+  });
+
   it("filters by createdAt date range", async () => {
     const recent = await createDoctor(agent, { name: "Dr. Recent" });
     // Mongoose's `timestamps` option only honors a caller-supplied `createdAt`
@@ -122,6 +143,61 @@ describe("Doctors API", () => {
     const malformed = await agent.get("/api/doctors/not-an-id");
     expect(malformed.status).toBe(400);
     expect(malformed.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("defaults status to active on create, and updates fields including status", async () => {
+    const doctor = await createDoctor(agent, { name: "Dr. Update Me" });
+    expect(doctor.status).toBe("active");
+
+    const res = await agent.patch(`/api/doctors/${doctor._id}`).send({ hospital: "New Hospital", status: "on-leave" });
+    expect(res.status).toBe(200);
+    expect(res.body.hospital).toBe("New Hospital");
+    expect(res.body.status).toBe("on-leave");
+    // Untouched fields survive a partial update.
+    expect(res.body.name).toBe("Dr. Update Me");
+  });
+
+  it("400s updating a doctor with no fields; 404s for a missing doctor", async () => {
+    const doctor = await createDoctor(agent);
+
+    const empty = await agent.patch(`/api/doctors/${doctor._id}`).send({});
+    expect(empty.status).toBe(400);
+
+    const missing = await agent.patch("/api/doctors/000000000000000000000000").send({ hospital: "X" });
+    expect(missing.status).toBe(404);
+  });
+
+  it("409s updating a doctor's email to one already in use by another doctor", async () => {
+    await createDoctor(agent, { email: "taken@test.dev" });
+    const other = await createDoctor(agent, { email: "other@test.dev" });
+
+    const res = await agent.patch(`/api/doctors/${other._id}`).send({ email: "taken@test.dev" });
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe("CONFLICT");
+  });
+
+  it("deletes a doctor with no patients; 404s for a missing doctor", async () => {
+    const doctor = await createDoctor(agent);
+
+    const res = await agent.delete(`/api/doctors/${doctor._id}`);
+    expect(res.status).toBe(204);
+
+    const missing = await agent.delete(`/api/doctors/${doctor._id}`);
+    expect(missing.status).toBe(404);
+  });
+
+  it("409s deleting a doctor who still has patients assigned, and leaves the doctor and patient intact", async () => {
+    const doctor = await createDoctor(agent);
+    await agent.post(`/api/doctors/${doctor._id}/patients`).send({ name: "P1", age: 20, condition: "Asthma" });
+
+    const res = await agent.delete(`/api/doctors/${doctor._id}`);
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe("CONFLICT");
+
+    const stillThere = await agent.get(`/api/doctors/${doctor._id}`);
+    expect(stillThere.status).toBe(200);
+    const patients = await agent.get(`/api/doctors/${doctor._id}/patients`);
+    expect(patients.body.data).toHaveLength(1);
   });
 
   it("creates and lists patients scoped to a doctor", async () => {

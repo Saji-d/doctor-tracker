@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export interface Column<T> {
   key: string;
   header: string;
-  render: (row: T) => ReactNode;
+  render: (row: T, index: number) => ReactNode;
   className?: string;
 }
 
@@ -85,11 +85,11 @@ export function DataTable<T>({
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              rows.map((row, index) => (
                 <tr key={rowKey(row)} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                   {columns.map((col) => (
                     <td key={col.key} className={`px-4 py-3 whitespace-nowrap ${col.className ?? ""}`}>
-                      {col.render(row)}
+                      {col.render(row, index)}
                     </td>
                   ))}
                 </tr>

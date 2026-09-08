@@ -26,7 +26,7 @@ function Brand() {
       </div>
       <div className="min-w-0">
         <p className="truncate text-sm font-semibold leading-tight">Doctor Tracker</p>
-        <p className="truncate text-xs text-muted-foreground">Doctor &amp; patient records, organized</p>
+        <p className="truncate text-xs text-muted-foreground">Better Care. Smarter Management.</p>
       </div>
     </div>
   );

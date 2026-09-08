@@ -46,9 +46,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen lg:flex">
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col lg:pl-64">
+      {/* min-w-0 on both: flex items default to min-width:auto, which lets a
+          wide table (or anything else) grow the whole page horizontally
+          instead of scrolling within its own overflow-x-auto container. */}
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-64">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
   );

@@ -19,6 +19,10 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   confirmLabel?: string;
   isPending?: boolean;
+  /** Shown when the confirmed action fails server-side (e.g. a 409 conflict)
+   * — the dialog stays open so the user sees why, rather than closing on
+   * failure the same way it does on success. */
+  error?: string | null;
 }
 
 export function ConfirmDialog({
@@ -29,6 +33,7 @@ export function ConfirmDialog({
   onConfirm,
   confirmLabel = "Delete",
   isPending,
+  error,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -37,6 +42,11 @@ export function ConfirmDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {error && (
+          <div role="alert" className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md p-2">
+            {error}
+          </div>
+        )}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction

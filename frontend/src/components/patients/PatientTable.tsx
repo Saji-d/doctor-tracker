@@ -7,6 +7,7 @@ import { DataTable, Column } from "@/components/data-table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPatientDate } from "@/lib/format-date";
+import { getConditionColor } from "@/lib/condition-colors";
 import type { Patient } from "@/hooks/usePatients";
 
 interface PatientTableProps {
@@ -53,7 +54,11 @@ export function PatientTable({
       ),
     },
     { key: "age", header: "Age", render: (p) => <span className="text-muted-foreground">{p.age}</span> },
-    { key: "condition", header: "Condition", render: (p) => <Badge variant="secondary">{p.condition}</Badge> },
+    {
+      key: "condition",
+      header: "Condition",
+      render: (p) => <Badge className={getConditionColor(p.condition).badgeClassName}>{p.condition}</Badge>,
+    },
     {
       key: "doctor",
       header: "Doctor",
