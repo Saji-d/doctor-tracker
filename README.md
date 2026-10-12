@@ -144,7 +144,7 @@ flowchart LR
 
 **API routes:** `/api/auth` (login, logout, me), `/api/doctors` (CRUD plus `/:id/patients`), `/api/patients` (list, create, update, delete) and `/api/dashboard/summary?range=7d|30d|90d`. Every route except login requires a valid session.
 
-**Why the backend is the only auth boundary:** the frontend and API live on different domains, so a cookie set by the API is invisible to the frontend's own server. There is deliberately no Next.js `middleware.ts`. The dashboard route guard only redirects for UX, and the real check is `requireAuth` on every protected API route.
+**Why the backend is the only auth boundary:** the frontend and API live on different domains, so a cookie set by the API is invisible to the frontend's own server. There is deliberately no Next.js `middleware.ts`. The dashboard route guard only redirects for UX while the real check is `requireAuth` on every protected API route.
 
 **Dashboard queries:** all fields come from independent indexed Mongoose queries run with `Promise.all` instead of one `$facet` pipeline. A shared date filter in `$facet` would have wrongly scoped the all-time totals to the selected range.
 
