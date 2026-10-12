@@ -22,15 +22,17 @@
   </p>
 
   <p>
-    <a href="#-overview">Overview</a> · <a href="#-try-it-live">Try it live</a> · <a href="#-highlights">Highlights</a> · <a href="#-preview">Preview</a> · <a href="#-architecture">Architecture</a> · <a href="#-tech-stack">Tech Stack</a> · <a href="#-getting-started">Getting Started</a> · <a href="#-roadmap">Roadmap</a>
+    <a href="#-overview">Overview</a> · <a href="#-try-it-live">Try it live</a> · <a href="#-highlights">Highlights</a> · <a href="#-preview">Preview</a> · <a href="#-architecture">Architecture</a> · <a href="#-tech-stack">Tech Stack</a> · <a href="#-getting-started">Getting Started</a>
   </p>
+
+  <p><sub>Built as a technical assessment. Independent implementation, not affiliated with or endorsed by any company.</sub></p>
 </div>
 
 <img src="assets/divider.svg" alt="" width="100%">
 
 ## ◈ Overview
 
-Doctor Tracker lets hospital front-desk staff manage doctors and their patients in one place. Register doctors, add patients under them, reassign patients between doctors and search, filter and paginate both lists. A live dashboard summarises headcounts, per-doctor patient loads, condition breakdowns and registration trends.
+Doctor Tracker is an admin console for managing doctors and their patients in one place, built as an assessment project for a hospital-admin scenario. Register doctors, add patients under them, reassign patients between doctors and search, filter and paginate both lists. A live dashboard summarises headcounts, per-doctor patient loads, condition breakdowns and registration trends.
 
 It is one Git repository with two independently deployed apps: a Next.js frontend on Vercel and an Express and MongoDB REST API on Render, talking over HTTPS across two hosts.
 
@@ -211,8 +213,10 @@ Run the tests with `npm test` inside `backend/` or `frontend/`. See [`backend/RE
 
 ## ◈ Project Structure
 
+Two apps in one repo: `backend/` holds the Express API (controllers, services, models, validators and tests) and `frontend/` holds the Next.js app and its components.
+
 <details>
-<summary><b>Show the tree</b></summary>
+<summary><b>Open the folder map</b></summary>
 
 ```text
 doctor-tracker/
@@ -237,21 +241,16 @@ doctor-tracker/
 
 <img src="assets/divider.svg" alt="" width="100%">
 
-## ◈ Roadmap
-
-- [x] Doctor and patient CRUD with search, filters and pagination
-- [x] Analytics dashboard with trend comparison
-- [x] Cookie-based auth with a rate-limited login
-- [x] Backend and frontend test suites
-- [ ] Role-based accounts beyond the single seeded admin
-- [ ] Keep-alive or paid hosting to remove the free-tier cold start
-
-<img src="assets/divider.svg" alt="" width="100%">
-
 ## ◈ Author
 
-**Sajidur Rahman Sajid**, Full-Stack Developer and AI engineer from Dhaka.
+**Sajidur Rahman Sajid**: Full-Stack Developer and AI engineer from Dhaka.<br>
+BSc in CSE at American International University-Bangladesh (AIUB).
 
-[Portfolio](https://www.sajidur.me) · [LinkedIn](https://www.linkedin.com/in/sajidur-rahman-sajid/) · [GitHub](https://github.com/Saji-d) · [Email](mailto:sajidsajidurrahman99@gmail.com)
+<p>
+  <a href="https://www.sajidur.me"><img src="https://img.shields.io/badge/Portfolio-0B0E1A?style=flat-square&logo=googlechrome&logoColor=9B8CFA" alt="Portfolio"></a>
+  <a href="https://www.linkedin.com/in/sajidur-rahman-sajid/"><img src="https://img.shields.io/badge/LinkedIn-0B0E1A?style=flat-square&logo=linkedin&logoColor=8B7CF6" alt="LinkedIn"></a>
+  <a href="https://github.com/Saji-d"><img src="https://img.shields.io/badge/GitHub-0B0E1A?style=flat-square&logo=github&logoColor=EEF0FA" alt="GitHub"></a>
+  <a href="mailto:sajidsajidurrahman99@gmail.com"><img src="https://img.shields.io/badge/Email-0B0E1A?style=flat-square&logo=gmail&logoColor=9B8CFA" alt="Email"></a>
+</p>
 
 <div align="center"><sub>Built as a full-stack assessment project and deployed end to end.</sub></div>
